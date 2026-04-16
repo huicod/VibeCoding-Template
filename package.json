@@ -8,6 +8,6 @@
   },
   "scripts": {
     "cli": "node ./src/vct/bin/cli.js",
-    "test": "node --test --test-isolation=none ./src/vct/test/init.test.js"
+    "test": "node --test --test-isolation=none ./src/vct/test/*.test.js"
   }
 }

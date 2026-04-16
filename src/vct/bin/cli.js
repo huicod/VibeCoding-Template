@@ -5,6 +5,7 @@ const { parseArgs } = require('node:util');
 const path = require('node:path');
 const { listTargets, getTarget } = require('../lib/adapters');
 const { init } = require('../lib/init');
+const { update } = require('../lib/update');
 const { error } = require('../lib/output');
 
 const { version } = require(path.join(__dirname, '..', '..', '..', 'package.json'));
@@ -12,10 +13,11 @@ const TARGET_IDS = listTargets().map((target) => target.id);
 
 const HELP = `
 USAGE
-  vct init [output-dir] [options]
+  vct <command> [output-dir] [options]
 
 COMMANDS
   init      Generate one or more platform projections into an output directory
+  update    Refresh managed projections from install-lock or detected target layout
 
 OPTIONS
   -v, --version   Print version number
@@ -26,6 +28,7 @@ OPTIONS
 EXAMPLES
   vct init . --target antigravity
   vct init ./out/demo --target antigravity,cursor,claude,codex
+  vct update ./out/demo
 `.trimStart();
 
 const { values, positionals } = parseArgs({
@@ -80,6 +83,21 @@ async function main() {
         destinationDir: outputDir,
         targetIds,
         force: values.force
+      });
+      return;
+    }
+
+    case 'update': {
+      const outputDir = positionals[1] || '.';
+
+      if (values.target !== undefined) {
+        error('`vct update --target` is not supported. Update will use install-lock or detected targets.');
+        process.exitCode = 1;
+        return;
+      }
+
+      await update({
+        destinationDir: outputDir
       });
       return;
     }

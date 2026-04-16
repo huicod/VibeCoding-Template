@@ -4,9 +4,11 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const REPO_ROOT = path.join(__dirname, '..', '..', '..');
+const COMMON_ROOT = '.vibe';
 const ROOT_AGENTS_FILE = path.join(REPO_ROOT, 'AGENTS.md');
 const CANONICAL_WORKFLOWS_ROOT = path.join(REPO_ROOT, '.antigravity', 'workflows');
 const CANONICAL_SKILLS_ROOT = path.join(REPO_ROOT, '.antigravity', 'skills');
+const CANONICAL_SCRIPTS_ROOT = path.join(REPO_ROOT, '.antigravity', 'scripts');
 const TEMPLATE_ROOT = path.join(__dirname, '..', 'templates');
 const SCAFFOLD_ROOT = path.join(TEMPLATE_ROOT, 'scaffold');
 const ROUTER_SKILL_TEMPLATE = path.join(TEMPLATE_ROOT, 'skills', 'vibecoding-system', 'SKILL.md');
@@ -19,6 +21,18 @@ const SHARED_RESOURCES = [
 
 function toPosix(relPath) {
   return relPath.split(path.sep).join('/');
+}
+
+function rewriteGeneratedText(content) {
+  return [
+    [/.antigravity\/scripts\/git_forensics\.py/g, '.vibe/skills/git-forensics/scripts/git_forensics.py'],
+    [/.antigravity\/scripts\/git_hotspots\.py/g, '.vibe/skills/git-forensics/scripts/git_hotspots.py'],
+    [/.antigravity\/scripts\//g, '.vibe/scripts/'],
+    [/.antigravity\//g, '.vibe/'],
+    [/.antigravity\b/g, '.vibe'],
+    [/.vct\//g, '.vibe/'],
+    [/.vct\b/g, '.vibe']
+  ].reduce((current, [pattern, replacement]) => current.replace(pattern, replacement), content);
 }
 
 function shouldIgnoreFile(relPath) {
@@ -96,10 +110,18 @@ async function listCanonicalSkills() {
   return listFilesRecursive(CANONICAL_SKILLS_ROOT);
 }
 
+async function listCanonicalSkillEntrypoints() {
+  return listCanonicalSkills().then((files) => files.filter((file) => file.relPath.endsWith('/SKILL.md')));
+}
+
+async function listCanonicalScripts() {
+  return listFilesRecursive(CANONICAL_SCRIPTS_ROOT);
+}
+
 async function listScaffoldFiles() {
   return listFilesRecursive(SCAFFOLD_ROOT).then((files) => files.map((file) => ({
     ...file,
-    outputPath: file.relPath
+    outputPath: file.relPath.replace(/^\.antigravity/, COMMON_ROOT)
   })));
 }
 
@@ -116,14 +138,19 @@ async function listSharedFiles() {
 }
 
 module.exports = {
+  COMMON_ROOT,
   CANONICAL_SKILLS_ROOT,
+  CANONICAL_SCRIPTS_ROOT,
   CANONICAL_WORKFLOWS_ROOT,
   REPO_ROOT,
   ROOT_AGENTS_FILE,
   ROUTER_SKILL_TEMPLATE,
   SCAFFOLD_ROOT,
+  listCanonicalScripts,
+  listCanonicalSkillEntrypoints,
   listCanonicalSkills,
   listCanonicalWorkflows,
   listScaffoldFiles,
-  listSharedFiles
+  listSharedFiles,
+  rewriteGeneratedText
 };

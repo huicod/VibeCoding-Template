@@ -6,3 +6,4 @@ Thumbs.db
 
 .antigravity/artifacts/logs/
 node_modules/
+out/

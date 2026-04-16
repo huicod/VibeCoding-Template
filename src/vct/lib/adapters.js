@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const TARGETS = {
@@ -47,7 +48,6 @@ const TARGETS = {
     id: 'codex',
     label: 'Codex',
     workflowProjection: 'router-skill',
-    workflowRoot: '.codex/skills/vibecoding-system/references',
     skillRoot: '.codex/skills',
     routerSkillDir: 'vibecoding-system',
     rootAgentFile: true
@@ -56,7 +56,6 @@ const TARGETS = {
     id: 'trae',
     label: 'Trae',
     workflowProjection: 'router-skill',
-    workflowRoot: '.trae/skills/vibecoding-system/references',
     skillRoot: '.trae/skills',
     routerSkillDir: 'vibecoding-system',
     rootAgentFile: true
@@ -120,7 +119,6 @@ function projectWorkflowPath(target, workflowRelPath) {
   switch (target.workflowProjection) {
     case 'workflows':
     case 'commands':
-    case 'router-skill':
       return joinPosix(target.workflowRoot, workflowRelPath);
 
     case 'prompts':
@@ -143,12 +141,53 @@ function getRouterSkillPath(target) {
   return joinPosix(target.skillRoot, target.routerSkillDir, 'SKILL.md');
 }
 
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function detectInstalledTargets(destinationRoot) {
+  const detectedTargets = [];
+
+  for (const target of listTargets()) {
+    const candidates = [];
+    const routerSkillPath = getRouterSkillPath(target);
+
+    if (routerSkillPath) {
+      candidates.push(routerSkillPath);
+    }
+
+    if (target.workflowRoot) {
+      candidates.push(target.workflowRoot);
+    }
+
+    if (target.skillRoot) {
+      candidates.push(target.skillRoot);
+    }
+
+    for (const relPath of candidates) {
+      if (await pathExists(path.join(destinationRoot, relPath))) {
+        detectedTargets.push(target);
+        break;
+      }
+    }
+  }
+
+  return detectedTargets;
+}
+
 module.exports = {
   TARGETS,
+  detectInstalledTargets,
   getRouterSkillPath,
   getTarget,
   joinPosix,
   listTargets,
+  pathExists,
   projectSkillPath,
   projectWorkflowPath
 };
