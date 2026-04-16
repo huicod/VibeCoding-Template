@@ -27,7 +27,7 @@ async function exists(targetPath) {
   }
 }
 
-test('vct init projects shared core into .vibe and antigravity wrappers separately', async () => {
+test('vct init projects shared .agents and .vibe roots alongside antigravity wrappers', async () => {
   await withTempDir(async (tempDir) => {
     const outputDir = path.join(tempDir, 'generated-antigravity');
     await init({
@@ -36,8 +36,9 @@ test('vct init projects shared core into .vibe and antigravity wrappers separate
     });
 
     assert.equal(await exists(path.join(outputDir, 'AGENTS.md')), true);
-    assert.equal(await exists(path.join(outputDir, '.vibe', 'workflows', 'genesis.md')), true);
-    assert.equal(await exists(path.join(outputDir, '.vibe', 'skills', 'spec-writer', 'SKILL.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'workflows', 'genesis.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'skills', 'spec-writer', 'SKILL.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'scripts', 'check-template-consistency.sh')), true);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'docs', 'README.md')), true);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'artifacts', 'error_journal.md')), true);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'install-lock.json')), true);
@@ -49,7 +50,7 @@ test('vct init projects shared core into .vibe and antigravity wrappers separate
     assert.equal(await exists(path.join(outputDir, '.antigravity', 'artifacts', 'error_journal.md')), false);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'docs', 'GUIDE.md')), false);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'artifacts', 'plan_template_review_fixes_20260408.md')), false);
-    assert.equal(await exists(path.join(outputDir, '.vibe', 'skills', 'git-forensics', 'scripts', '__pycache__')), false);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'skills', 'git-forensics', 'scripts', '__pycache__')), false);
     assert.equal(await exists(path.join(outputDir, '.antigravity', 'skills', 'spec-writer', 'references', 'prd_template.md')), false);
 
     const agents = await fs.readFile(path.join(outputDir, 'AGENTS.md'), 'utf8');
@@ -57,17 +58,37 @@ test('vct init projects shared core into .vibe and antigravity wrappers separate
     const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
 
     assert.match(agents, /\.vibe\//);
+    assert.match(agents, /\.agents\//);
     assert.doesNotMatch(agents, /\.antigravity\//);
-    assert.match(antigravityWorkflowWrapper, /\.vibe\/workflows\/genesis\.md/);
+    assert.match(antigravityWorkflowWrapper, /\.agents\/workflows\/genesis\.md/);
     assert.equal(lock.schemaVersion, 2);
     assert.equal(lock.sharedRoot, '.vibe');
     assert.equal(lock.shared.managedFiles.includes('AGENTS.md'), true);
+    assert.equal(lock.shared.managedFiles.includes('.agents/workflows/genesis.md'), true);
     assert.equal(lock.shared.bootstrapFiles.includes('.vibe/docs/README.md'), true);
     assert.equal(lock.targets[0].installedVersion, version);
   });
 });
 
-test('vct init projects cursor claude and codex as thin compatibility layers over .vibe', async () => {
+test('vct init defaults to cursor, claude, and codex when no target is provided', async () => {
+  await withTempDir(async (tempDir) => {
+    const outputDir = path.join(tempDir, 'generated-default-targets');
+
+    await init({
+      destinationDir: outputDir
+    });
+
+    const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
+
+    assert.equal(await exists(path.join(outputDir, '.cursor', 'commands', 'genesis.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.claude', 'commands', 'genesis.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.codex', 'skills', 'vibecoding-system', 'SKILL.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.antigravity', 'workflows', 'genesis.md')), false);
+    assert.deepEqual(lock.targets.map((target) => target.targetId), ['claude', 'codex', 'cursor']);
+  });
+});
+
+test('vct init projects cursor claude and codex as thin compatibility layers over .agents and .vibe', async () => {
   await withTempDir(async (tempDir) => {
     const outputDir = path.join(tempDir, 'generated-multi-target');
     await init({
@@ -82,8 +103,8 @@ test('vct init projects cursor claude and codex as thin compatibility layers ove
     assert.equal(await exists(path.join(outputDir, '.codex', 'skills', 'vibecoding-system', 'SKILL.md')), true);
     assert.equal(await exists(path.join(outputDir, '.codex', 'skills', 'spec-writer', 'SKILL.md')), true);
     assert.equal(await exists(path.join(outputDir, '.vibe', 'genesis', '.gitkeep')), true);
-    assert.equal(await exists(path.join(outputDir, '.vibe', 'workflows', 'genesis.md')), true);
-    assert.equal(await exists(path.join(outputDir, '.vibe', 'skills', 'spec-writer', 'SKILL.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'workflows', 'genesis.md')), true);
+    assert.equal(await exists(path.join(outputDir, '.agents', 'skills', 'spec-writer', 'SKILL.md')), true);
 
     const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
     const cursorWorkflowWrapper = await fs.readFile(path.join(outputDir, '.cursor', 'commands', 'genesis.md'), 'utf8');
@@ -96,9 +117,9 @@ test('vct init projects cursor claude and codex as thin compatibility layers ove
     assert.equal(await exists(path.join(outputDir, '.cursor', 'skills', 'spec-writer', 'references', 'prd_template.md')), false);
     assert.equal(await exists(path.join(outputDir, '.codex', 'skills', 'vibecoding-system', 'references', 'genesis.md')), false);
 
-    assert.match(cursorWorkflowWrapper, /\.vibe\/workflows\/genesis\.md/);
-    assert.match(cursorSkillWrapper, /\.vibe\/skills\/spec-writer\/SKILL\.md/);
-    assert.match(codexRouter, /\.vibe\/workflows\/quickstart\.md/);
+    assert.match(cursorWorkflowWrapper, /\.agents\/workflows\/genesis\.md/);
+    assert.match(cursorSkillWrapper, /\.agents\/skills\/spec-writer\/SKILL\.md/);
+    assert.match(codexRouter, /\.agents\/workflows\/quickstart\.md/);
   });
 });
 
@@ -164,5 +185,53 @@ test('vct init reports partial success and only records successful targets into 
     assert.deepEqual(lock.lastUpdateSummary.failedTargets, ['cursor']);
     assert.equal(await exists(path.join(outputDir, '.claude', 'commands', 'genesis.md')), true);
     assert.equal(await exists(path.join(outputDir, '.cursor', 'commands', 'genesis.md')), false);
+  });
+});
+
+test('vct init does not adopt a pre-existing foreign target root unless forced', async () => {
+  await withTempDir(async (tempDir) => {
+    const outputDir = path.join(tempDir, 'generated-foreign-root');
+
+    await fs.mkdir(path.join(outputDir, '.antigravity', 'workflows'), { recursive: true });
+    await fs.writeFile(path.join(outputDir, '.antigravity', 'workflows', 'existing.md'), 'foreign workflow\n', 'utf8');
+
+    await init({
+      destinationDir: outputDir,
+      targetIds: ['antigravity', 'cursor']
+    });
+
+    const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
+    const foreignWorkflow = await fs.readFile(path.join(outputDir, '.antigravity', 'workflows', 'existing.md'), 'utf8');
+
+    assert.equal(foreignWorkflow, 'foreign workflow\n');
+    assert.equal(await exists(path.join(outputDir, '.antigravity', 'workflows', 'genesis.md')), false);
+    assert.equal(await exists(path.join(outputDir, '.cursor', 'commands', 'genesis.md')), true);
+    assert.deepEqual(lock.targets.map((target) => target.targetId), ['cursor']);
+  });
+});
+
+test('vct init refuses to adopt a foreign root AGENTS.md and .agents directory without force', async () => {
+  await withTempDir(async (tempDir) => {
+    const outputDir = path.join(tempDir, 'generated-preserve-existing');
+
+    await fs.mkdir(path.join(outputDir, '.agents'), { recursive: true });
+    await fs.writeFile(path.join(outputDir, '.agents', 'README.md'), 'foreign agents dir\n', 'utf8');
+    await fs.writeFile(path.join(outputDir, 'AGENTS.md'), 'foreign root agents\n', 'utf8');
+
+    await assert.rejects(
+      init({
+        destinationDir: outputDir,
+        targetIds: ['cursor']
+      }),
+      /workspace-owned shared roots\/files/
+    );
+
+    const rootAgents = await fs.readFile(path.join(outputDir, 'AGENTS.md'), 'utf8');
+    const foreignAgentsDir = await fs.readFile(path.join(outputDir, '.agents', 'README.md'), 'utf8');
+
+    assert.equal(rootAgents, 'foreign root agents\n');
+    assert.equal(foreignAgentsDir, 'foreign agents dir\n');
+    assert.equal(await exists(path.join(outputDir, '.cursor', 'commands', 'genesis.md')), false);
+    assert.equal(await exists(path.join(outputDir, '.vibe', 'install-lock.json')), false);
   });
 });

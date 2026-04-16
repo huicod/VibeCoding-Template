@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('node:path');
+const { pathExists } = require('./adapters');
 const { buildProjectionPlan } = require('./manifest');
 const { writeEntries } = require('./copy');
 const {
@@ -38,6 +39,11 @@ async function update(options = {}) {
   const destinationDir = options.destinationDir || '.';
   const absoluteDestination = path.resolve(destinationDir);
   const installState = await detectInstallState(absoluteDestination);
+  const sharedRootExists = await pathExists(path.join(absoluteDestination, '.vibe'));
+
+  if (!sharedRootExists && !installState.lockResult.exists) {
+    throw new Error('No managed .vibe workspace found in the destination. Refusing to update a foreign target layout.');
+  }
 
   if (installState.selectedTargets.length === 0) {
     throw new Error('No supported VibeCoding target layout found in the destination. Run `vct init` first.');

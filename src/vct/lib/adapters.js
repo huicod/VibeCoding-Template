@@ -3,6 +3,8 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
+const DEFAULT_TARGET_IDS = ['cursor', 'claude', 'codex'];
+
 const TARGETS = {
   antigravity: {
     id: 'antigravity',
@@ -141,6 +143,24 @@ function getRouterSkillPath(target) {
   return joinPosix(target.skillRoot, target.routerSkillDir, 'SKILL.md');
 }
 
+function getTargetRootDirs(target) {
+  const roots = new Set();
+  const candidates = [
+    target.workflowRoot,
+    target.skillRoot,
+    getRouterSkillPath(target)
+  ].filter(Boolean);
+
+  for (const relPath of candidates) {
+    const firstSegment = relPath.split('/')[0];
+    if (firstSegment) {
+      roots.add(firstSegment);
+    }
+  }
+
+  return Array.from(roots).sort();
+}
+
 async function pathExists(targetPath) {
   try {
     await fs.access(targetPath);
@@ -181,9 +201,11 @@ async function detectInstalledTargets(destinationRoot) {
 }
 
 module.exports = {
+  DEFAULT_TARGET_IDS,
   TARGETS,
   detectInstalledTargets,
   getRouterSkillPath,
+  getTargetRootDirs,
   getTarget,
   joinPosix,
   listTargets,

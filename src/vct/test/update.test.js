@@ -26,7 +26,7 @@ async function exists(targetPath) {
   }
 }
 
-test('vct update refreshes managed files while preserving project-owned docs scaffolding', async () => {
+test('vct update refreshes managed .agents files while preserving project-owned .vibe scaffolding', async () => {
   await withTempDir(async (tempDir) => {
     const outputDir = path.join(tempDir, 'generated-update');
 
@@ -36,7 +36,7 @@ test('vct update refreshes managed files while preserving project-owned docs sca
     });
 
     await fs.writeFile(path.join(outputDir, '.vibe', 'docs', 'README.md'), 'project architecture docs\n', 'utf8');
-    await fs.writeFile(path.join(outputDir, '.vibe', 'workflows', 'genesis.md'), 'stale workflow\n', 'utf8');
+    await fs.writeFile(path.join(outputDir, '.agents', 'workflows', 'genesis.md'), 'stale workflow\n', 'utf8');
     await fs.writeFile(path.join(outputDir, '.cursor', 'commands', 'genesis.md'), 'stale wrapper\n', 'utf8');
 
     await update({
@@ -44,14 +44,14 @@ test('vct update refreshes managed files while preserving project-owned docs sca
     });
 
     const docsReadme = await fs.readFile(path.join(outputDir, '.vibe', 'docs', 'README.md'), 'utf8');
-    const workflow = await fs.readFile(path.join(outputDir, '.vibe', 'workflows', 'genesis.md'), 'utf8');
+    const workflow = await fs.readFile(path.join(outputDir, '.agents', 'workflows', 'genesis.md'), 'utf8');
     const wrapper = await fs.readFile(path.join(outputDir, '.cursor', 'commands', 'genesis.md'), 'utf8');
     const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
 
     assert.equal(docsReadme, 'project architecture docs\n');
     assert.notEqual(workflow, 'stale workflow\n');
     assert.notEqual(wrapper, 'stale wrapper\n');
-    assert.match(wrapper, /\.vibe\/workflows\/genesis\.md/);
+    assert.match(wrapper, /\.agents\/workflows\/genesis\.md/);
     assert.deepEqual(lock.lastUpdateSummary.failedTargets, []);
     assert.deepEqual(lock.lastUpdateSummary.successfulTargets, ['antigravity', 'cursor']);
     assert.equal(lock.targets.find((target) => target.targetId === 'cursor').lastSuccessfulUpdate.version, lock.cliVersion);
@@ -108,5 +108,21 @@ test('vct update records partial target failures without dropping successful tar
     assert.equal(lock.targets.some((target) => target.targetId === 'codex'), true);
     assert.notEqual(codexRouter, 'stale router\n');
     assert.equal(await exists(path.join(outputDir, '.cursor', 'skills', 'spec-writer', 'SKILL.md')), false);
+  });
+});
+
+test('vct update refuses to operate on a foreign target layout without a managed .vibe root', async () => {
+  await withTempDir(async (tempDir) => {
+    const outputDir = path.join(tempDir, 'foreign-update-target');
+
+    await fs.mkdir(path.join(outputDir, '.antigravity', 'workflows'), { recursive: true });
+    await fs.writeFile(path.join(outputDir, '.antigravity', 'workflows', 'existing.md'), 'foreign workflow\n', 'utf8');
+
+    await assert.rejects(
+      update({
+        destinationDir: outputDir
+      }),
+      /No managed \.vibe workspace found/
+    );
   });
 });

@@ -4,17 +4,18 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const REPO_ROOT = path.join(__dirname, '..', '..', '..');
-const COMMON_ROOT = '.vibe';
-const ROOT_AGENTS_FILE = path.join(REPO_ROOT, 'AGENTS.md');
-const CANONICAL_WORKFLOWS_ROOT = path.join(REPO_ROOT, '.antigravity', 'workflows');
-const CANONICAL_SKILLS_ROOT = path.join(REPO_ROOT, '.antigravity', 'skills');
-const CANONICAL_SCRIPTS_ROOT = path.join(REPO_ROOT, '.antigravity', 'scripts');
 const TEMPLATE_ROOT = path.join(__dirname, '..', 'templates');
+const COMMON_ROOT = '.vibe';
+const AGENT_ROOT = '.agents';
+const ROOT_AGENTS_FILE = path.join(TEMPLATE_ROOT, 'AGENTS.md');
+const CANONICAL_WORKFLOWS_ROOT = path.join(TEMPLATE_ROOT, AGENT_ROOT, 'workflows');
+const CANONICAL_SKILLS_ROOT = path.join(TEMPLATE_ROOT, AGENT_ROOT, 'skills');
+const CANONICAL_SCRIPTS_ROOT = path.join(TEMPLATE_ROOT, AGENT_ROOT, 'scripts');
 const SCAFFOLD_ROOT = path.join(TEMPLATE_ROOT, 'scaffold');
 const ROUTER_SKILL_TEMPLATE = path.join(TEMPLATE_ROOT, 'skills', 'vibecoding-system', 'SKILL.md');
 const SHARED_RESOURCES = [
   {
-    sourcePath: path.join(REPO_ROOT, '.vscode', 'mcp.json'),
+    sourcePath: path.join(TEMPLATE_ROOT, '.vscode', 'mcp.json'),
     outputPath: '.vscode/mcp.json'
   }
 ];
@@ -25,9 +26,17 @@ function toPosix(relPath) {
 
 function rewriteGeneratedText(content) {
   return [
-    [/.antigravity\/scripts\/git_forensics\.py/g, '.vibe/skills/git-forensics/scripts/git_forensics.py'],
-    [/.antigravity\/scripts\/git_hotspots\.py/g, '.vibe/skills/git-forensics/scripts/git_hotspots.py'],
-    [/.antigravity\/scripts\//g, '.vibe/scripts/'],
+    [/.antigravity\/workflows\//g, '.agents/workflows/'],
+    [/.antigravity\/skills\//g, '.agents/skills/'],
+    [/.antigravity\/scripts\/git_forensics\.py/g, '.agents/scripts/git_forensics.py'],
+    [/.antigravity\/scripts\/git_hotspots\.py/g, '.agents/scripts/git_hotspots.py'],
+    [/.antigravity\/scripts\//g, '.agents/scripts/'],
+    [/.vibe\/workflows\//g, '.agents/workflows/'],
+    [/.vibe\/skills\//g, '.agents/skills/'],
+    [/.vibe\/scripts\//g, '.agents/scripts/'],
+    [/.vct\/workflows\//g, '.agents/workflows/'],
+    [/.vct\/skills\//g, '.agents/skills/'],
+    [/.vct\/scripts\//g, '.agents/scripts/'],
     [/.antigravity\//g, '.vibe/'],
     [/.antigravity\b/g, '.vibe'],
     [/.vct\//g, '.vibe/'],
@@ -121,7 +130,7 @@ async function listCanonicalScripts() {
 async function listScaffoldFiles() {
   return listFilesRecursive(SCAFFOLD_ROOT).then((files) => files.map((file) => ({
     ...file,
-    outputPath: file.relPath.replace(/^\.antigravity/, COMMON_ROOT)
+    outputPath: file.relPath
   })));
 }
 
@@ -138,6 +147,7 @@ async function listSharedFiles() {
 }
 
 module.exports = {
+  AGENT_ROOT,
   COMMON_ROOT,
   CANONICAL_SKILLS_ROOT,
   CANONICAL_SCRIPTS_ROOT,

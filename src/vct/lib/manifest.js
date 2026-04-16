@@ -2,8 +2,15 @@
 
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { getRouterSkillPath, getTarget, projectSkillPath, projectWorkflowPath } = require('./adapters');
 const {
+  DEFAULT_TARGET_IDS,
+  getRouterSkillPath,
+  getTarget,
+  projectSkillPath,
+  projectWorkflowPath
+} = require('./adapters');
+const {
+  AGENT_ROOT,
   COMMON_ROOT,
   ROUTER_SKILL_TEMPLATE,
   ROOT_AGENTS_FILE,
@@ -31,7 +38,7 @@ async function buildTextEntry(sourcePath, outputPath, kind) {
 
 function buildWorkflowWrapper({ target, workflowRelPath }) {
   const workflowName = path.posix.basename(workflowRelPath, '.md');
-  const sharedWorkflowPath = joinPosix(COMMON_ROOT, 'workflows', workflowRelPath);
+  const sharedWorkflowPath = joinPosix(AGENT_ROOT, 'workflows', workflowRelPath);
 
   return [
     `# ${workflowName} Compatibility Wrapper`,
@@ -46,7 +53,9 @@ function buildWorkflowWrapper({ target, workflowRelPath }) {
     `- \`${COMMON_ROOT}/examples/\``,
     `- \`${COMMON_ROOT}/genesis/\``,
     `- \`${COMMON_ROOT}/artifacts/\``,
-    `- \`${COMMON_ROOT}/skills/\``,
+    '',
+    'Shared agent skills live under:',
+    `- \`${AGENT_ROOT}/skills/\``,
     '',
     'If this wrapper and the shared workflow ever differ, treat the shared workflow as canonical.'
   ].join('\n') + '\n';
@@ -54,8 +63,8 @@ function buildWorkflowWrapper({ target, workflowRelPath }) {
 
 function buildSkillWrapper({ target, skillRelPath }) {
   const skillName = path.posix.dirname(skillRelPath);
-  const sharedSkillPath = joinPosix(COMMON_ROOT, 'skills', skillRelPath);
-  const sharedSkillDir = joinPosix(COMMON_ROOT, 'skills', skillName);
+  const sharedSkillPath = joinPosix(AGENT_ROOT, 'skills', skillRelPath);
+  const sharedSkillDir = joinPosix(AGENT_ROOT, 'skills', skillName);
 
   return [
     `# ${skillName} Compatibility Wrapper`,
@@ -72,8 +81,8 @@ function buildSkillWrapper({ target, skillRelPath }) {
   ].join('\n') + '\n';
 }
 
-async function buildProjectionPlan(targetIds = ['antigravity']) {
-  const uniqueTargetIds = Array.from(new Set((targetIds.length > 0 ? targetIds : ['antigravity'])));
+async function buildProjectionPlan(targetIds = DEFAULT_TARGET_IDS.slice()) {
+  const uniqueTargetIds = Array.from(new Set((targetIds.length > 0 ? targetIds : DEFAULT_TARGET_IDS)));
   const workflowFiles = await listCanonicalWorkflows();
   const skillFiles = await listCanonicalSkills();
   const skillEntrypoints = await listCanonicalSkillEntrypoints();
@@ -84,9 +93,9 @@ async function buildProjectionPlan(targetIds = ['antigravity']) {
   const sharedManagedEntries = [
     await buildTextEntry(ROOT_AGENTS_FILE, 'AGENTS.md', 'root-agents'),
     ...await Promise.all(sharedFiles.map((file) => buildTextEntry(file.sourcePath, file.outputPath, 'shared'))),
-    ...await Promise.all(workflowFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(COMMON_ROOT, 'workflows', file.relPath), 'common-workflow'))),
-    ...await Promise.all(skillFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(COMMON_ROOT, 'skills', file.relPath), 'common-skill'))),
-    ...await Promise.all(scriptFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(COMMON_ROOT, 'scripts', file.relPath), 'common-script')))
+    ...await Promise.all(workflowFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(AGENT_ROOT, 'workflows', file.relPath), 'common-workflow'))),
+    ...await Promise.all(skillFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(AGENT_ROOT, 'skills', file.relPath), 'common-skill'))),
+    ...await Promise.all(scriptFiles.map((file) => buildTextEntry(file.sourcePath, joinPosix(AGENT_ROOT, 'scripts', file.relPath), 'common-script')))
   ];
   const bootstrapEntries = await Promise.all(
     scaffoldFiles.map((file) => buildTextEntry(file.sourcePath, file.outputPath, 'scaffold'))

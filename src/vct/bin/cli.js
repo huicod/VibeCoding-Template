@@ -3,7 +3,7 @@
 
 const { parseArgs } = require('node:util');
 const path = require('node:path');
-const { listTargets, getTarget } = require('../lib/adapters');
+const { DEFAULT_TARGET_IDS, listTargets, getTarget } = require('../lib/adapters');
 const { init } = require('../lib/init');
 const { update } = require('../lib/update');
 const { error } = require('../lib/output');
@@ -26,7 +26,7 @@ OPTIONS
   --target        Target platform ids, comma-separated (${TARGET_IDS.join(', ')})
 
 EXAMPLES
-  vct init . --target antigravity
+  vct init .
   vct init ./out/demo --target antigravity,cursor,claude,codex
   vct update ./out/demo
 `.trimStart();
@@ -45,7 +45,7 @@ const { values, positionals } = parseArgs({
 
 function parseTargetIds(raw) {
   if (!raw) {
-    return ['antigravity'];
+    return DEFAULT_TARGET_IDS.slice();
   }
 
   const targetIds = raw
@@ -54,7 +54,7 @@ function parseTargetIds(raw) {
     .filter(Boolean);
 
   if (targetIds.length === 0) {
-    return ['antigravity'];
+    return DEFAULT_TARGET_IDS.slice();
   }
 
   targetIds.forEach((targetId) => getTarget(targetId));
