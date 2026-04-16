@@ -1,0 +1,13 @@
+{
+  "name": "vibe-coding-template",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local generator for multi-platform VibeCoding workflow templates.",
+  "bin": {
+    "vct": "./src/vct/bin/cli.js"
+  },
+  "scripts": {
+    "cli": "node ./src/vct/bin/cli.js",
+    "test": "node --test --test-isolation=none ./src/vct/test/init.test.js"
+  }
+}
