@@ -31,14 +31,14 @@ description: 综合 Scout 阶段所有分析（build-inspector, runtime-inspecto
     *   `git-forensics` → Coupling Pairs, Hotspots
     *   `concept-modeler` → Entities, Missing Components
 3.  **起草报告**: 按照模板组织逻辑连接。
-4.  **发布 (CRITICAL)**: 你**必须**使用 `write_to_file` 保存到 `.antigravity/genesis/v{N}/00_SCOUT_REPORT.md`。**禁止**仅打印到聊天。确保 `.antigravity/genesis/v{N}/` 目录存在。
+4.  **发布 (CRITICAL)**: 你**必须**使用 `write_to_file` 保存到 `.vibe/genesis/v{N}/00_SCOUT_REPORT.md`。**禁止**仅打印到聊天。确保 `.vibe/genesis/v{N}/` 目录存在。
 
 ---
 
 ## ✅ 完成检查清单
 
 在进入下一阶段之前，验证：
-- [ ] 输出文件已创建: `.antigravity/genesis/v{N}/00_SCOUT_REPORT.md`
+- [ ] 输出文件已创建: `.vibe/genesis/v{N}/00_SCOUT_REPORT.md`
 - [ ] 包含: System Fingerprint, Component Map, Risk Matrix, Feature Landing Guide
 - [ ] 用户已确认发现
 

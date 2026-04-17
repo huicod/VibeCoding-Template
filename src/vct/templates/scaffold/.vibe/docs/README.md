@@ -1,4 +1,4 @@
-# .antigravity/docs
+# .vibe/docs
 
 Put project-specific design inputs here before running workflows such as `/genesis`.
 

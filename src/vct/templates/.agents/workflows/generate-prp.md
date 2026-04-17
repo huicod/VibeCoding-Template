@@ -15,14 +15,14 @@ description: 从需求描述生成完整的 PRP（Product Requirements Prompt）
 根据用户提供的需求描述，生成一份详尽的 PRP 蓝图：
 
 1. **读取需求**
-   - 读取用户指定的需求文件（如 `.antigravity/docs/requirements/feature.md`）
+   - 读取用户指定的需求文件（如 `.vibe/docs/requirements/feature.md`）
    - 理解要构建什么、为什么构建
 
 2. **研究代码库**
    - 在 `TARGET_PROJECT` 中搜索类似的功能/模式
-   - 参考 `.antigravity/examples/` 目录中的代码模式
+   - 参考 `.vibe/examples/` 目录中的代码模式
    - 识别当前代码的命名惯例和架构模式
-   - 检查 `.antigravity/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md` 确保符合架构
+   - 检查 `.vibe/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md` 确保符合架构
 
 3. **查阅文档**（如有 Context7 MCP 则主动使用）
    - 查找相关第三方库的最新文档
@@ -33,7 +33,7 @@ description: 从需求描述生成完整的 PRP（Product Requirements Prompt）
    - 使用 3-5 步结构化思考进行深度推理（如宿主支持，可使用顺序思考工具）
    - 考虑边界情况、失败模式、安全风险
 
-5. **生成 PRP 蓝图**，保存为 `.antigravity/artifacts/prp_[feature].md`，包含：
+5. **生成 PRP 蓝图**，保存为 `.vibe/artifacts/prp_[feature].md`，包含：
    - **Goal**: 要构建什么
    - **Why**: 业务价值
    - **Success Criteria**: 可验证的成功条件（checklist）

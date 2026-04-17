@@ -17,7 +17,7 @@ Your job is to kill ambiguity.
     *   Identify ambiguities
     *   Draft clarifying questions
 3.  **Interrogate**: Present questions to user. DO NOT proceed without answers.
-4.  **Draft PRD (MANDATORY)**: Use `view_file references/prd_template.md` then `write_to_file` to create `.antigravity/genesis/v{N}/01_PRD.md`.
+4.  **Draft PRD (MANDATORY)**: Use `view_file references/prd_template.md` then `write_to_file` to create `.vibe/genesis/v{N}/01_PRD.md`.
 5.  **Ambiguity Scan (MANDATORY)**: After drafting, run the 10-Dimension Ambiguity Scan (see below). Fix issues inline or mark `[ASSUMPTION]`.
 6.  **US Quality Gate (MANDATORY)**: Verify every User Story passes the quality checklist (see below).
 
@@ -34,7 +34,7 @@ After creating the PRD, you MUST:
 7. Ensure `[NEEDS CLARIFICATION]` tags ≤ 3 (hard limit). Excess → use reasonable defaults + `[ASSUMPTION]` tag.
 
 ## ✅ Completion Checklist
-- [ ] PRD file created: `.antigravity/genesis/v{N}/01_PRD.md`
+- [ ] PRD file created: `.vibe/genesis/v{N}/01_PRD.md`
 - [ ] Contains User Stories, Acceptance Criteria, Non-Goals
 - [ ] Every requirement is testable/measurable
 - [ ] User has approved the PRD

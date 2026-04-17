@@ -72,7 +72,7 @@ description: 代码安全和质量审查。支持审查 working tree、staged、
 
 4. **语言惯用写法 (MEDIUM)**
    - 是否符合项目 `AGENTS.md` Coding Style 中定义的规范
-   - 是否遵循 `.antigravity/examples/` 中的模式示例
+   - 是否遵循 `.vibe/examples/` 中的模式示例
    - 命名是否一致且有意义
    - 是否利用了语言特性（而非用通用写法硬套）
    - 错误处理是否带有上下文信息

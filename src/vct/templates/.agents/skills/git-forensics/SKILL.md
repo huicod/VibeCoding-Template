@@ -24,8 +24,8 @@ description: 分析 Git 历史，发现"逻辑耦合"（总一起改的文件）
 ---
 
 ## ⚡ 快速启动
-1.  **耦合分析**: `python .antigravity/scripts/git_forensics.py --repo . --threshold 0.3`
-2.  **热点探测**: `python .antigravity/scripts/git_hotspots.py --repo . --days 180`
+1.  **耦合分析**: `python .agents/scripts/git_forensics.py --repo . --threshold 0.3`
+2.  **热点探测**: `python .agents/scripts/git_hotspots.py --repo . --days 180`
 
 ---
 

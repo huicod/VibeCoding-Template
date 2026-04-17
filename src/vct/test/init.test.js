@@ -55,12 +55,19 @@ test('vct init projects shared .agents and .vibe roots alongside antigravity wra
 
     const agents = await fs.readFile(path.join(outputDir, 'AGENTS.md'), 'utf8');
     const antigravityWorkflowWrapper = await fs.readFile(path.join(outputDir, '.antigravity', 'workflows', 'genesis.md'), 'utf8');
+    const templateCheckScript = await fs.readFile(path.join(outputDir, '.agents', 'scripts', 'check-template-consistency.sh'), 'utf8');
     const lock = JSON.parse(await fs.readFile(path.join(outputDir, '.vibe', 'install-lock.json'), 'utf8'));
 
     assert.match(agents, /\.vibe\//);
     assert.match(agents, /\.agents\//);
     assert.doesNotMatch(agents, /\.antigravity\//);
     assert.match(antigravityWorkflowWrapper, /\.agents\/workflows\/genesis\.md/);
+    assert.match(templateCheckScript, /\.agents\/workflows/);
+    assert.match(templateCheckScript, /\.agents\/skills/);
+    assert.doesNotMatch(templateCheckScript, /\.vibe\/workflows/);
+    assert.doesNotMatch(templateCheckScript, /\.vibe\/skills/);
+    assert.doesNotMatch(templateCheckScript, /\.antigravity\/workflows/);
+    assert.doesNotMatch(templateCheckScript, /\.antigravity\/skills/);
     assert.equal(lock.schemaVersion, 2);
     assert.equal(lock.sharedRoot, '.vibe');
     assert.equal(lock.shared.managedFiles.includes('AGENTS.md'), true);

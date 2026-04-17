@@ -36,7 +36,7 @@ description: 系统化调试工作流，用假设驱动的方法定位和修复 
 4. **修复并防范**
    - 修复根因（不是症状）
    - 添加测试覆盖该 bug 场景
-   - 记录到 `.antigravity/artifacts/error_journal.md`
+   - 记录到 `.vibe/artifacts/error_journal.md`
    - 说明如何防止同类问题再现
 
 5. **输出格式**

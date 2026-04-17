@@ -2,7 +2,7 @@
 
 **Project**: [Project Name]  
 **Blueprint Phase**: Approved  
-**RFC Reference**: `.antigravity/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md`
+**RFC Reference**: `.vibe/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md`
 
 ---
 

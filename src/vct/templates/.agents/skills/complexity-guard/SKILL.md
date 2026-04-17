@@ -15,18 +15,18 @@ You are the **No** man. You fight entropy.
 
 | 模式 | 输入文件 | 调用场景 |
 |------|---------|---------|
-| **架构审计** | `.antigravity/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md` | genesis Step 6 / 独立调用 |
-| **任务审计** | `.antigravity/genesis/v{N}/05_TASKS.md` | blueprint Step 4 |
-| **设计审计** | `.antigravity/genesis/v{N}/04_SYSTEM_DESIGN/{system}.md` | design-system Step 6 |
+| **架构审计** | `.vibe/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md` | genesis Step 6 / 独立调用 |
+| **任务审计** | `.vibe/genesis/v{N}/05_TASKS.md` | blueprint Step 4 |
+| **设计审计** | `.vibe/genesis/v{N}/04_SYSTEM_DESIGN/{system}.md` | design-system Step 6 |
 
-1.  **Read Target (MANDATORY)**: 根据调用场景读取对应的文件。如果不确定，读取 `.antigravity/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md`。
+1.  **Read Target (MANDATORY)**: 根据调用场景读取对应的文件。如果不确定，读取 `.vibe/genesis/v{N}/02_ARCHITECTURE_OVERVIEW.md`。
 2.  **Load Blacklist**: `view_file references/anti_patterns.md` to check forbidden patterns.
 3.  **Deep Audit (CRITICAL)**: You MUST call `sequential thinking` with 3-7 reasoning steps (depending on complexity) to:
     *   Check for over-engineering (unnecessary abstractions)
     *   Identify YAGNI violations (speculative features)
     *   Count new dependencies (each is a red flag)
     *   Verify simplicity (Occam's Razor)
-4.  **Score & Verdict**: Rate complexity 1-10. >7 = REJECT. Use `write_to_file` to save `.antigravity/genesis/v{N}/AUDIT_REPORT.md`.
+4.  **Score & Verdict**: Rate complexity 1-10. >7 = REJECT. Use `write_to_file` to save `.vibe/genesis/v{N}/AUDIT_REPORT.md`.
 
 ## 🛑 Mandatory Audit Checklist
 You MUST verify:
@@ -37,7 +37,7 @@ You MUST verify:
 5. Use `write_to_file` to save audit report. DO NOT just print verdict.
 
 ## ✅ Completion Checklist
-- [ ] Audit file created: `.antigravity/genesis/v{N}/AUDIT_REPORT.md`
+- [ ] Audit file created: `.vibe/genesis/v{N}/AUDIT_REPORT.md`
 - [ ] Complexity score assigned (1-10)
 - [ ] Clear APPROVE or REJECT verdict with reasoning
 - [ ] Alternative simpler solutions suggested (if REJECT)

@@ -6,8 +6,9 @@ cd "$ROOT_DIR"
 
 TARGETS=(
   "AGENTS.md"
-  ".antigravity/docs"
-  ".antigravity/workflows"
+  ".vibe/docs"
+  ".agents/workflows"
+  ".agents/skills"
 )
 
 fail() {
@@ -18,7 +19,7 @@ fail() {
 check_no_match() {
   local pattern="$1"
   local label="$2"
-  if rg -n --hidden --glob '!.antigravity/artifacts/**' --glob '!.antigravity/scripts/check-template-consistency.sh' "$pattern" "${TARGETS[@]}" >/tmp/template_check_match.txt 2>/dev/null; then
+  if rg -n --hidden --glob '!.vibe/artifacts/**' --glob '!.agents/scripts/check-template-consistency.sh' "$pattern" "${TARGETS[@]}" >/tmp/template_check_match.txt 2>/dev/null; then
     echo "FAIL: found forbidden pattern for ${label}" >&2
     cat /tmp/template_check_match.txt >&2
     exit 1
@@ -28,8 +29,8 @@ check_no_match() {
 expected_workflows=19
 expected_skills=19
 
-actual_workflows="$(find ".antigravity/workflows" -maxdepth 1 -type f | wc -l | tr -d ' ')"
-actual_skills="$(find ".antigravity/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+actual_workflows="$(find ".agents/workflows" -maxdepth 1 -type f | wc -l | tr -d ' ')"
+actual_skills="$(find ".agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
 
 [[ "$actual_workflows" == "$expected_workflows" ]] || fail "workflow count mismatch: expected ${expected_workflows}, got ${actual_workflows}"
 [[ "$actual_skills" == "$expected_skills" ]] || fail "skill count mismatch: expected ${expected_skills}, got ${actual_skills}"
@@ -43,8 +44,8 @@ check_no_match 'replace_file_content' 'host-specific file edit pseudo-tool'
 check_no_match 'multi_replace_file_content' 'host-specific multi-edit pseudo-tool'
 check_no_match 'sequentialthinking' 'host-specific sequential thinking tool name'
 
-if find .antigravity/genesis -mindepth 1 ! -name '.gitkeep' | read -r _; then
-  fail "template genesis directory is not empty; expected only .antigravity/genesis/.gitkeep in source template"
+if find .vibe/genesis -mindepth 1 ! -name '.gitkeep' | read -r _; then
+  fail "template genesis directory is not empty; expected only .vibe/genesis/.gitkeep in source template"
 fi
 
 echo "OK: template consistency checks passed"

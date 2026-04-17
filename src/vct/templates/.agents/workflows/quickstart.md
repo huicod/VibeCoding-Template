@@ -17,10 +17,10 @@ description: 智能编排全流程（scout → genesis → design → blueprint 
 扫描项目以决定起点。
 
 > [!IMPORTANT]
-> `.antigravity/genesis/` 目录存在**不等于**已经初始化。
+> `.vibe/genesis/` 目录存在**不等于**已经初始化。
 >
-> 只有当存在可用的 `.antigravity/genesis/v{N}/00_MANIFEST.md` 时，才算有活动架构版本。
-> 空的 `.antigravity/genesis/`、`.gitkeep` 或占位目录都应视为“尚未初始化”。
+> 只有当存在可用的 `.vibe/genesis/v{N}/00_MANIFEST.md` 时，才算有活动架构版本。
+> 空的 `.vibe/genesis/`、`.gitkeep` 或占位目录都应视为“尚未初始化”。
 
 ### 状态矩阵
 ```

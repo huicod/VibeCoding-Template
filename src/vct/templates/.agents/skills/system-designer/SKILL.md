@@ -354,17 +354,17 @@ flowchart TD
 ---
 
 ### 工具1: 系统设计 L0 模板（导航层）
-- **路径**: `.antigravity/skills/system-designer/references/system-design-template.md`
+- **路径**: `.agents/skills/system-designer/references/system-design-template.md`
 - **用途**: L0 导航层模板，14章节结构，操作契约表格格式
-- **使用**: `view_file .antigravity/skills/system-designer/references/system-design-template.md`
+- **使用**: `view_file .agents/skills/system-designer/references/system-design-template.md`
 
 ### 工具2: 系统设计 L1 模板（实现层）
-- **路径**: `.antigravity/skills/system-designer/references/system-design-detail-template.md`
+- **路径**: `.agents/skills/system-designer/references/system-design-detail-template.md`
 - **用途**: L1 实现层模板，触发 R1-R5 任意一条时创建 `{system}.detail.md`
-- **使用**: `view_file .antigravity/skills/system-designer/references/system-design-detail-template.md`
+- **使用**: `view_file .agents/skills/system-designer/references/system-design-detail-template.md`
 
 ### 工具3: 调研报告存储
-- **路径**: `.antigravity/genesis/v{N}/04_SYSTEM_DESIGN/_research/{system-id}-research.md`
+- **路径**: `.vibe/genesis/v{N}/04_SYSTEM_DESIGN/_research/{system-id}-research.md`
 - **用途**: 保存 /explore 的调研结果
 - **格式**: Exploration Report (由 /explore 生成)
 
@@ -522,7 +522,7 @@ flowchart TD
 **Step 6: 文档化 (Document)**
 ```
 使用模板填充14章节 → 保存到:
-.antigravity/genesis/v{N}/04_SYSTEM_DESIGN/backend-api-system.md
+.vibe/genesis/v{N}/04_SYSTEM_DESIGN/backend-api-system.md
 ```
 
 ---

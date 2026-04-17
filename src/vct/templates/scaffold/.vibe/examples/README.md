@@ -1,4 +1,4 @@
-# .antigravity/examples
+# .vibe/examples
 
 Put reusable code patterns, reference snippets, and best-practice examples here.
 

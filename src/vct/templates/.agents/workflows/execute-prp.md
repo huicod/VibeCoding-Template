@@ -17,7 +17,7 @@ PRP 文件本身保留在控制面板仓库；代码实现和验证发生在 `TA
 根据已生成的 PRP 蓝图实现功能：
 
 1. **加载 PRP**
-   - 读取指定的 PRP 文件（如 `.antigravity/artifacts/prp_todo_crud.md`）
+   - 读取指定的 PRP 文件（如 `.vibe/artifacts/prp_todo_crud.md`）
    - 理解所有上下文、需求和验证条件
    - 如需补充研究，先完成后再开始编码
 
@@ -28,7 +28,7 @@ PRP 文件本身保留在控制面板仓库；代码实现和验证发生在 `TA
 
 3. **逐步实现**
    对 PRP 中的每个任务：
-   - 参考 `.antigravity/examples/` 中的代码模式
+   - 参考 `.vibe/examples/` 中的代码模式
    - 编写代码（遵循 AGENTS.md 中的编码规范）
    - 完成后立即运行对应的验证命令
    - 所有代码编辑与命令执行均在 `TARGET_PROJECT` 中进行
@@ -45,7 +45,7 @@ PRP 文件本身保留在控制面板仓库；代码实现和验证发生在 `TA
 5. **最终确认**
    - 重读 PRP，逐条检查 Success Criteria
    - 运行完整验证套件
-   - 记录遇到的问题到 `.antigravity/artifacts/error_journal.md`
+   - 记录遇到的问题到 `.vibe/artifacts/error_journal.md`
    - 报告完成状态
 
 > 原则：**永远不跳过验证**。即使"看起来应该能用"也要跑一遍。

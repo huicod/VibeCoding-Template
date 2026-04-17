@@ -7,7 +7,7 @@
 
 ## 🎯 目标项目 (Target Project)
 
-> **控制面板（`.antigravity/`）与业务代码共存于同一工作区。**
+> **控制面板（`.vibe/`）与业务代码共存于同一工作区。**
 
 ```
 TARGET_PROJECT: ./
@@ -16,7 +16,7 @@ TARGET_PROJECT: ./
 > ℹ️ 使用前必须修改为你的实际项目路径。
 > 所有 `/forge` `/tdd` `/code-review` `/deploy` 等涉及代码的操作都在此路径下执行。
 > 架构文档、任务跟踪、错误日志等保留在本项目中。
-> 新 clone 的模板默认**没有**活动架构版本；首次运行 `/genesis` 后才会创建 `.antigravity/genesis/v1/`。
+> 新 clone 的模板默认**没有**活动架构版本；首次运行 `/genesis` 后才会创建 `.vibe/genesis/v1/`。
 
 ### TARGET_PROJECT 解析协议
 
@@ -33,7 +33,7 @@ TARGET_PROJECT: ./
 6. 如果路径缺失、无法解析或不像代码仓库根目录，**立即停止**并提示用户修正 `TARGET_PROJECT`
 
 > **职责边界**：
-> - 控制面板仓库：`AGENTS.md`、`.antigravity/genesis/`、`.antigravity/artifacts/`、`.antigravity/docs/`
+> - 控制面板仓库：`AGENTS.md`、`.vibe/genesis/`、`.vibe/artifacts/`、`.vibe/docs/`
 > - 目标代码仓库：代码、测试、构建、调试、部署、git 审查
 
 ---
@@ -45,8 +45,8 @@ TARGET_PROJECT: ./
 1. **读取根目录的 AGENTS.md** → 获取项目地图
 2. **查看下方"当前状态"** → 找到最新架构版本
 3. **如果显示 `尚未初始化`** → 先运行 `/genesis`
-4. **如果已初始化** → 读取 `.antigravity/genesis/v{N}/05_TASKS.md`
-5. **检查 `.antigravity/artifacts/error_journal.md`** → 避免重复已知错误
+4. **如果已初始化** → 读取 `.vibe/genesis/v{N}/05_TASKS.md`
+5. **检查 `.vibe/artifacts/error_journal.md`** → 避免重复已知错误
 6. **开始工作**
 
 ---
@@ -56,15 +56,15 @@ TARGET_PROJECT: ./
 | 路径 | 描述 | 访问协议 |
 |------|------|----------|
 | `./` (TARGET_PROJECT) | **业务代码**。由 TARGET_PROJECT 指向。 | 通过 Task 读/写。 |
-| `.antigravity/docs/` | **原始设计文档**。用户的架构设计、需求文档等输入。 | 只读参考。 |
-| `.antigravity/genesis/` | **设计演进史**。版本化架构状态 (v1, v2...)；新项目默认为空。 | **只读**(旧版) / **写一次**(新版)。 |
-| `.antigravity/genesis/v{N}/` | **当前真理**。最新的架构定义。 | 永远寻找最大的 `v{N}`。 |
-| `.antigravity/genesis/v{N}/07_*` | **架构速查**。从 .antigravity/docs/ 原始文档提炼的架构设计速查。 | `/forge` L0 必读。 |
-| `.antigravity/genesis/v{N}/08_*` | **代码规范**。技术栈编码约定与规则。 | `/forge` L0 必读。 |
-| `.antigravity/artifacts/` | **产出物**。计划、PRP、错误日志、测试日志。 | 自由读写。 |
-| `.antigravity/examples/` | **代码模式示例**。AI 参考的模式和最佳实践。 | 只读参考。 |
-| `.antigravity/workflows/` | **工作流**。`/genesis`, `/tdd` 等。 | 按需读取对应文件。 |
-| `.antigravity/skills/` | **技能库**。原子能力。 | 按需读取对应 skill 文档。 |
+| `.vibe/docs/` | **原始设计文档**。用户的架构设计、需求文档等输入。 | 只读参考。 |
+| `.vibe/genesis/` | **设计演进史**。版本化架构状态 (v1, v2...)；新项目默认为空。 | **只读**(旧版) / **写一次**(新版)。 |
+| `.vibe/genesis/v{N}/` | **当前真理**。最新的架构定义。 | 永远寻找最大的 `v{N}`。 |
+| `.vibe/genesis/v{N}/07_*` | **架构速查**。从 .vibe/docs/ 原始文档提炼的架构设计速查。 | `/forge` L0 必读。 |
+| `.vibe/genesis/v{N}/08_*` | **代码规范**。技术栈编码约定与规则。 | `/forge` L0 必读。 |
+| `.vibe/artifacts/` | **产出物**。计划、PRP、错误日志、测试日志。 | 自由读写。 |
+| `.vibe/examples/` | **代码模式示例**。AI 参考的模式和最佳实践。 | 只读参考。 |
+| `.agents/workflows/` | **工作流**。`/genesis`, `/tdd` 等。 | 按需读取对应文件。 |
+| `.agents/skills/` | **技能库**。原子能力。 | 按需读取对应 skill 文档。 |
 
 ---
 
@@ -112,7 +112,7 @@ _尚未开始执行_
 
 | 工作流 | 触发时机 | 产出 |
 |--------|---------|------|
-| `/generate-prp` | 需要详尽的实现蓝图时 | `.antigravity/artifacts/prp_[feature].md` |
+| `/generate-prp` | 需要详尽的实现蓝图时 | `.vibe/artifacts/prp_[feature].md` |
 | `/execute-prp` | 按 PRP 蓝图实现功能 | 代码 + 验证通过 |
 
 ### 运维与调试流程 (Kit)
@@ -167,14 +167,14 @@ _尚未开始执行_
 
 8. **不假设缺失的上下文**：不确定时主动提问，不猜测。
 9. **不编造不存在的 API**：只使用已验证的库和函数。
-10. **参考 .antigravity/examples/**：实现新功能前，先看 `.antigravity/examples/` 中的模式示例。
+10. **参考 .vibe/examples/**：实现新功能前，先看 `.vibe/examples/` 中的模式示例。
 11. **验证不可跳过**：即使看起来应该能用，也必须跑验证命令。
 
 ### Skill 加载法则 (Harness Engineering)
 
 12. **Declare Before Act**: 使用任何 Skill 前，必须在回复中声明：
     `🧠 Loading skill: @{skill-name} — {reason}`
-13. **Cross-Reference**: 实现前检查是否有对应的 `.antigravity/examples/` 示例。
+13. **Cross-Reference**: 实现前检查是否有对应的 `.vibe/examples/` 示例。
 14. **Skill Chain**: 复杂任务声明完整的 skill 调用链，例如：
     `🧠 Skill chain: @system-architect → @api-design → @{lang}-patterns → @{lang}-testing`
 
@@ -242,7 +242,7 @@ _尚未开始执行_
 > **落地要求**: 运行 `/genesis` 后，应至少补充：
 > - 项目采用的验证命令
 > - 可选的 CI 配置（如 `.github/workflows/harness.yml`）
-> - 可选的参考示例（如 `.antigravity/examples/` 中的代码模式）
+> - 可选的参考示例（如 `.vibe/examples/` 中的代码模式）
 
 <!-- HARNESS_COMMANDS:BEGIN — 由 /genesis 自动维护 -->
 （等待 /genesis 根据技术栈生成具体验证命令...）
@@ -250,7 +250,7 @@ _尚未开始执行_
 
 ## 🧬 Error Self-Evolution（错误自进化）
 
-- 遇到 bug 或走错方向时，记录到 `.antigravity/artifacts/error_journal.md`（含根因和防范规则）
+- 遇到 bug 或走错方向时，记录到 `.vibe/artifacts/error_journal.md`（含根因和防范规则）
 - 每次行动前**扫描 `error_journal.md` 的 Prevention Rules 速查表**，不需要读全部历史
 - 修复 bug 后，同步更新 Prevention Rules 表和 Error Log
 
@@ -258,10 +258,10 @@ _尚未开始执行_
 
 | 类型 | 路径 | 何时创建 |
 |------|------|---------|
-| 实现计划 | `.antigravity/artifacts/plan_[task].md` | 编码之前 |
-| PRP 蓝图 | `.antigravity/artifacts/prp_[feature].md` | /generate-prp 生成 |
-| 错误日志 | `.antigravity/artifacts/error_journal.md` | 遇到 bug 或走错方向时 |
-| 测试/构建日志 | `.antigravity/artifacts/logs/` | 运行测试或构建后 |
+| 实现计划 | `.vibe/artifacts/plan_[task].md` | 编码之前 |
+| PRP 蓝图 | `.vibe/artifacts/prp_[feature].md` | /generate-prp 生成 |
+| 错误日志 | `.vibe/artifacts/error_journal.md` | 遇到 bug 或走错方向时 |
+| 测试/构建日志 | `.vibe/artifacts/logs/` | 运行测试或构建后 |
 
 ---
 
@@ -280,7 +280,7 @@ Types: feat, fix, refactor, docs, test, chore, perf, ci
 | 查看某个 Wave 的所有变更 | `git log --oneline --grep="feat(system-id)"` | 通过系统查找 |
 | 回退某个任务的代码 | `git revert <commit-hash>` | 安全回退，不影响其他 |
 | 回退到某个 Wave 开始前 | `git log` 找到 Wave 开始的 commit，然后 `git reset --hard <hash>` | ⚗️ 破坏性操作，需确认 |
-| 查看某个版本的架构信息 | 直接读 `.antigravity/genesis/v{N}/` 下的文档 | 架构文档永远保留 |
+| 查看某个版本的架构信息 | 直接读 `.vibe/genesis/v{N}/` 下的文档 | 架构文档永远保留 |
 | push 到 GitHub 后回退 | `git revert <commit-hash>` + `git push` | 安全回退 |
 | push 后强制回退 | `git reset --hard <hash>` + `git push --force` | ⚗️ 仅限个人分支 |
 
@@ -304,10 +304,10 @@ Types: feat, fix, refactor, docs, test, chore, perf, ci
 <!-- AUTO:BEGIN — 由工作流自动维护，请勿手动编辑此区块 -->
 
 ### 技术栈决策
-- [由 .antigravity/genesis/tech-evaluator 自动填充]
+- [由 .vibe/genesis/tech-evaluator 自动填充]
 
 ### 系统边界
-- [由 .antigravity/genesis/system-architect 自动填充]
+- [由 .vibe/genesis/system-architect 自动填充]
 
 ### 活跃 ADR
 - [由 genesis 自动填充 ADR 摘要]

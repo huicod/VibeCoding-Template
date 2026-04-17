@@ -145,4 +145,4 @@ docker logs {container} --tail 50
 上一版本: v{X.Y.Z-1}
 ```
 
-> **失败处理**：如果任何步骤失败，停止部署、报告错误、记录到 `.antigravity/artifacts/error_journal.md`、提供修复建议。
+> **失败处理**：如果任何步骤失败，停止部署、报告错误、记录到 `.vibe/artifacts/error_journal.md`、提供修复建议。
