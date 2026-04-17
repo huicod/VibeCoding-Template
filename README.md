@@ -1,477 +1,640 @@
-# Antigravity Workflow Template
+# VibeCoding Template
 
-> **AI 驱动的软件工程工作区模板** — 融合 4 个框架精华，通过 Harness Engineering 实现自动化验证，让 AI 成为你的忠实工程搭档。
+> AI 驱动的软件工程工作区模板与本地生成器。  
+> 它保留 ANWS / ECC / Context Engineering / Kit / Harness Engineering 的原始工作流闭环，同时把共享真相源沉淀为 `.agents/` 和 `.vibe/`，再投影到 Cursor、Claude Code、Codex、Antigravity 等兼容层。
 
 ## 为什么需要这个模板
 
-Vibecoding（AI 辅助编码）的核心问题不是 AI 写不出代码，而是：
+Vibecoding 的核心问题不是 AI 写不出代码，而是：
 
-- AI **没有记忆**：每次新会话都从零开始
-- AI **会自由发挥**：不给约束就开盲盒
-- AI **不主动验证**：写完就完，不管对不对
-- AI **不知道项目全貌**：只看到当前文件，不懂架构
+- AI 没有记忆：每次新会话都从零开始
+- AI 会自由发挥：不给约束就容易偏航
+- AI 不主动验证：写完就完，不管对不对
+- AI 不知道项目全貌：只看到当前文件，不懂架构和上下文
 
-本模板通过**文件系统即外部记忆 + 工作流约束 + 自动验证管线**，把 AI 从"聪明但不靠谱的实习生"变成"严谨可靠的工程师"。
+这套模板的核心目标一直没变：通过“文件系统即外部记忆 + 工作流约束 + 自动验证管线”，把 AI 从“聪明但不稳定的实习生”变成“严谨可靠的工程搭档”。
 
 ## 架构来源
 
 | 框架 | 贡献 |
 |------|------|
-| **ANWS** (Antigravity Workflow System) | 版本化架构、genesis 设计流程、Wave 分批执行 |
-| **ECC** (Everything Claude Code) | 编码规范（动态生成）、TDD/Code Review、error journal |
-| **Context Engineering** | PRP 蓝图生成/执行、.antigravity/examples/ 代码示例、AI 行为法则 |
-| **Antigravity Kit** | `/debug` 调试、`/deploy` 部署、`/status` 状态、苏格拉底门控 |
-| **Harness Engineering** | 分层验证管线、Prevention Rules、Skill 加载法则 |
+| `ANWS` | 版本化架构、`/genesis` 设计流程、Wave 分批执行 |
+| `ECC` | 编码规范、TDD、Code Review、error journal |
+| `Context Engineering` | PRP 蓝图生成/执行、代码模式示例、AI 行为法则 |
+| `Antigravity Kit` | `/debug`、`/deploy`、`/status`、门控式执行 |
+| `Harness Engineering` | 分层验证、Prevention Rules、Skill 加载纪律 |
 
-## 架构：控制面板 + 代码项目分离
+## 现在的真实架构
 
-本模板是**独立的控制面板**，与实际代码项目分离。两者通过 `TARGET_PROJECT` 配置关联：
+这份仓库现在不是单纯“拿来就用”的模板目录，而是一个**模板生成项目**。  
+真正的 source of truth 在这里：
 
+- `src/vct/templates/AGENTS.md`
+- `src/vct/templates/.agents/`
+- `src/vct/templates/scaffold/.vibe/`
+
+????????????? `.antigravity/` ?????? `AGENTS.md` ???
+???????? `src/vct/templates/` ????
+
+生成后的项目则由三层组成：
+
+1. 共享根
+
+- `AGENTS.md`
+- `.agents/workflows/`
+- `.agents/skills/`
+- `.agents/scripts/`
+- `.vibe/docs/`
+- `.vibe/genesis/`
+- `.vibe/artifacts/`
+- `.vibe/examples/`
+- `.vibe/install-lock.json`
+
+2. 平台兼容层
+
+- Cursor: `.cursor/commands` + `.cursor/skills`
+- Claude Code: `.claude/commands` + `.claude/skills`
+- Codex: `.codex/skills`，其中 `vibecoding-system` 是 router skill
+- Antigravity: `.antigravity/workflows` + `.antigravity/skills`
+- 其他已支持 target：`windsurf`、`copilot`、`trae`、`qoder`、`kilo`、`opencode`
+
+3. 业务代码
+
+- 业务代码仍在你自己的真实项目目录里
+- `TARGET_PROJECT` 决定 AI 具体在哪个代码根下执行编码、测试、构建、部署
+
+## 为什么从 `.antigravity` 拆成 `.vibe` 和 `.agents`
+
+旧版模板把几乎所有东西都放进同一个平台根目录，这样很难真正泛化到多个工具。  
+现在的拆分是：
+
+- `.vibe/`：项目相关但平台无关的上下文和状态
+- `.agents/`：跨平台共享的 workflows、skills、scripts
+- `.cursor/`、`.claude/`、`.codex/`、`.antigravity/` 等：只保留兼容层入口
+
+这意味着：
+
+- 真正通用的内容只维护一份
+- 兼容层只负责“把同一套模板语义投影给不同平台”
+- ????? `antigravity` target?????????? `.antigravity/` ?????????????
+
+## 控制面板与目标代码的关系
+
+当前模板遵循的模型是：
+
+> 控制面板与业务代码共存于同一工作区。
+
+也就是说，生成后的工作区通常长这样：
+
+```text
+my-project/
+├── AGENTS.md
+├── .agents/
+│   ├── workflows/
+│   ├── skills/
+│   └── scripts/
+├── .vibe/
+│   ├── docs/
+│   ├── genesis/
+│   ├── artifacts/
+│   ├── examples/
+│   └── install-lock.json
+├── .cursor/
+├── .claude/
+├── .codex/
+├── src/                     # 业务代码
+├── internal/                # 业务代码
+└── package.json / go.mod / ...
 ```
-workspace/                                ← 你的工作区
-├── .agent/                               ← GSD 等工作区级工具（不冲突）
-├── Antigravity-Go-Template/              ← 控制面板（本项目）
-│   ├── AGENTS.md                         ← AI 锚点 + TARGET_PROJECT 配置
-│   ├── .antigravity/workflows/                 ← 19 个工作流
-│   ├── .antigravity/skills/                    ← 19 个技能
-│   ├── .antigravity/docs/                             ← 你的设计文档输入
-│   ├── .antigravity/genesis/                          ← 版本化架构文档（初始为空）
-│   ├── .antigravity/artifacts/                        ← AI 产出物 + 错误日志
-│   └── .antigravity/examples/                         ← 代码模式示例
-├── my-microservice/                       ← 实际代码项目（TARGET_PROJECT 指向这里）
-│   ├── cmd/
-│   ├── internal/
-│   ├── go.mod
-│   └── ...
-└── another-service/                       ← 其他项目
+
+`AGENTS.md` 中会有：
+
+```text
+TARGET_PROJECT: ./
 ```
 
-> **与 GSD 等其他工具不冲突**：GSD 在工作区级 `.agent/`，我们在项目级 `.agent/`，命令前缀不同。
->
-> **默认状态说明**：新 clone 的模板不会自带活动 `.antigravity/genesis/v1/`；首次运行 `/genesis` 时才创建第一版架构文档。
->
-> **执行规则说明**：所有代码类 workflow 在真正动手前，都应该先解析 `TARGET_PROJECT`、校验目标目录存在，并向你回显最终操作路径。
+你也可以把它改成：
 
----
+- `./`
+- `./services/review-service`
+- `./apps/web`
+
+这样控制面板根和实际编码根就可以分开，但仍处于同一工作区内。
+
+职责边界也保持清晰：
+
+- 控制面板：`AGENTS.md`、`.agents/`、`.vibe/`
+- 目标代码：`TARGET_PROJECT` 指向的代码、测试、构建、调试、部署对象
+
+## 默认 target 与支持矩阵
+
+默认不传 `--target` 时，会生成：
+
+- `cursor`
+- `claude`
+- `codex`
+
+如果你需要 Antigravity 兼容层，可以显式指定：
+
+```bash
+vct init . --target antigravity,cursor,claude,codex
+```
+
+当前支持的 target：
+
+- `antigravity`
+- `cursor`
+- `claude`
+- `codex`
+- `windsurf`
+- `copilot`
+- `trae`
+- `qoder`
+- `kilo`
+- `opencode`
 
 ## 快速开始
 
 ### 前提条件
 
-- 支持 AGENTS.md 的 AI 代码编辑器（如 Cursor、Windsurf、Claude Code、Antigravity）
+- Node.js
 - Git
+- 至少一种支持 `AGENTS.md` / workflow / skill 的 AI 编码工具
 
-### 5 分钟上手
+### 方式 1：直接运行本地 CLI
+
+在本仓库根目录下：
 
 ```bash
-# 1. 复制模板到工作区
-cp -r Antigravity-Go-Template-V1 ~/workspace/Antigravity
-cd ~/workspace/Antigravity
-
-# 新 clone 的模板默认没有 .antigravity/genesis/v1/，这是正常状态
-
-# 2. 配置目标项目路径（编辑 AGENTS.md）
-# 将 TARGET_PROJECT: ./ 改为你的实际项目路径
-
-# 3. 放入你的架构文档
-cp ~/my-design.pdf .antigravity/docs/
-
-# 4. 在 IDE 中打开工作区，对 AI 说：
-# "请阅读 AGENTS.md，然后运行 /genesis"
+node ./src/vct/bin/cli.js init ./out/demo
 ```
 
-AI 会自动完成：PRD → 技术选型 → 系统拆解 → 任务规划 → 在 TARGET_PROJECT 中开始编码。
+指定 target：
 
----
+```bash
+node ./src/vct/bin/cli.js init ./out/demo --target antigravity,cursor,claude,codex
+```
+
+更新已生成项目：
+
+```bash
+node ./src/vct/bin/cli.js update ./out/demo
+```
+
+### 方式 2：本机 link 后在任意工作区直接使用
+
+在本仓库根目录执行一次：
+
+```bash
+npm link
+```
+
+之后在任意项目目录里：
+
+```bash
+vct init .
+vct update .
+```
+
+Windows PowerShell 下也可以使用：
+
+```powershell
+npm.cmd link
+```
+
+## 5 分钟上手
+
+假设你已经把 CLI link 到本机，进入真实项目工作区后：
+
+```bash
+# 1. 初始化模板
+vct init .
+
+# 2. 如有需要，修改 AGENTS.md 里的 TARGET_PROJECT
+#    例如从 ./ 改成 ./services/review-service
+
+# 3. 放入你的真实项目文档
+#    把 PRD、架构设计、需求说明等放进 .vibe/docs/
+
+# 4. 在 IDE 中打开工作区，对 AI 说：
+#    “请先阅读 AGENTS.md，然后运行 /genesis”
+```
+
+如果你还想保留 Antigravity 兼容层：
+
+```bash
+vct init . --target antigravity,cursor,claude,codex
+```
 
 ## 核心工作流
 
 ### 全景流程
 
-```
-.antigravity/docs/ 放入架构文档
+```text
+.vibe/docs/ 放入架构文档
     ↓
-/genesis → PRD + 架构 + ADR          ← 设计阶段
+/genesis → PRD + 架构 + ADR            ← 设计阶段
     ↓
 /design-system → 系统详设（可选）
     ↓
-/blueprint → 任务清单 + Sprint 规划   ← 规划阶段
+/blueprint → 任务清单 + Sprint 规划     ← 规划阶段
     ↓
-/forge → Wave 分批编码                ← 编码阶段
+/forge → Wave 分批编码                  ← 编码阶段
     ↓
-/deploy → 验证 + 构建 + 部署          ← 部署阶段
+/deploy → 验证 + 构建 + 部署            ← 部署阶段
 ```
 
 ### 图例说明
 
-文档中使用以下标记区分操作触发方式：
-
 | 标记 | 含义 |
-|:----:|------|
-| 🧑 | **你手动操作/触发** — 需要你输入命令或放文件 |
-| 🤖 | **AI 自动执行** — 你说一句话，AI 全自动跑完 |
-| ⏸️ | **人类检查点** — AI 停下来等你确认后才继续 |
+|------|------|
+| `手动` | 需要你输入命令、确认检查点或放入文档 |
+| `自动` | AI 会按工作流自动执行 |
+| `检查点` | AI 会停下来等待你确认 |
 
----
+## 场景 1：创建新项目，从架构文档到第一行代码
 
-## 场景 1: 创建新项目 — 从架构文档到第一行代码
-
-### Phase 0: 准备
+### Phase 0：准备
 
 | 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 0.1 | 复制模板到新工作目录 | 🧑 |
-| 0.2 | 把架构文档（PDF/MD）放入 `.antigravity/docs/` | 🧑 |
-| 0.3 | （可选）把代码示例放入 `.antigravity/examples/` | 🧑 |
-| 0.4 | 在 IDE 中打开工作区 | 🧑 |
+|------|------|------|
+| 0.1 | 在目标工作区执行 `vct init .` | 手动 |
+| 0.2 | 修改 `AGENTS.md` 中的 `TARGET_PROJECT` | 手动 |
+| 0.3 | 把架构文档（PDF/MD）放入 `.vibe/docs/` | 手动 |
+| 0.4 | 可选：把代码模式示例放入 `.vibe/examples/` | 手动 |
+| 0.5 | 在 IDE 中打开工作区 | 手动 |
 
-### Phase 1: 创世 — `/genesis`
+### Phase 1：创世，`/genesis`
 
-> 🧑 你说：`请阅读 .antigravity/docs/ 下的设计文档，然后运行 /genesis`
->
-> 首次运行时，AI 会先创建 `.antigravity/genesis/v1/`；在此之前 `.antigravity/genesis/` 保持空目录是正常的。
+你对 AI 说：
 
-| 步骤 | 操作 | 触发 | 产出 |
-|:----:|------|:----:|------|
-| 1.0 | 版本管理 — 创建 `.antigravity/genesis/v1/` 目录 | 🤖 | `00_MANIFEST.md`, `06_CHANGELOG.md` |
-| 1.1 | 需求澄清 — 提取领域概念 | 🤖 | `concept_model.json` |
-| 1.1.1 | AI 可能追问领域术语 | ⏸️ | — |
-| 1.2 | PRD 生成 — 撰写产品需求 | 🤖 | `01_PRD.md` |
-| 1.2.1 | **⏸️ 人类检查点 #1** — 确认 Goals 和 User Stories | ⏸️ | — |
-| 1.3 | 技术选型 — 12 维度评估 | 🤖 | `03_ADR/ADR_001_TECH_STACK.md` |
-| 1.4 | 系统拆解 — 识别系统边界 | 🤖 | `02_ARCHITECTURE_OVERVIEW.md` |
-| 1.4.1 | **⏸️ 人类检查点 #2** — 确认系统拆分合理性 | ⏸️ | — |
-| 1.5 | （可选）架构决策 — 记录 ADR | 🤖 | `03_ADR/ADR_00X_*.md` |
-| 1.6 | （可选）复杂度审计 | 🤖 | 审计报告 |
-| 1.7 | 完成总结 — 更新 AGENTS.md | 🤖 | AGENTS.md 更新 |
+```text
+请阅读 .vibe/docs/ 下的设计文档，然后运行 /genesis
+```
 
-### Phase 2: 系统详设 — `/design-system`（按需）
-
-> 🧑 你说：`/design-system backend-api-system`
+首次运行时，AI 会先创建 `.vibe/genesis/v1/`；在此之前 `.vibe/genesis/` 为空是正常状态。
 
 | 步骤 | 操作 | 触发 | 产出 |
-|:----:|------|:----:|------|
-| 2.1 | 上下文加载 — 读取 PRD + Architecture + ADR | 🤖 | — |
-| 2.2 | 系统理解 — 深度思考系统边界 | 🤖 | — |
-| 2.3 | 调研 — 搜索业界最佳实践 | 🤖 | `_research/{system}-research.md` |
-| 2.4 | 设计 — 架构、接口、数据模型、Trade-offs | 🤖 | — |
-| 2.5 | 文档化 — 产出设计文档 | 🤖 | `04_SYSTEM_DESIGN/{system}.md` |
-| 2.6 | **⏸️ 人类检查点** — 确认系统设计 | ⏸️ | — |
+|------|------|------|------|
+| 1.0 | 版本管理，创建 `.vibe/genesis/v1/` | 自动 | `00_MANIFEST.md`, `06_CHANGELOG.md` |
+| 1.1 | 需求澄清，提取领域概念 | 自动 | `concept_model.json` |
+| 1.1.1 | AI 可能追问领域术语 | 检查点 | - |
+| 1.2 | PRD 生成 | 自动 | `01_PRD.md` |
+| 1.2.1 | 确认 Goals 和 User Stories | 检查点 | - |
+| 1.3 | 技术选型，12 维度评估 | 自动 | `03_ADR/ADR_001_TECH_STACK.md` |
+| 1.4 | 系统拆解，识别系统边界 | 自动 | `02_ARCHITECTURE_OVERVIEW.md` |
+| 1.4.1 | 确认系统拆分合理性 | 检查点 | - |
+| 1.5 | 可选：进一步补充 ADR | 自动 | `03_ADR/ADR_00X_*.md` |
+| 1.6 | 可选：复杂度审计 | 自动 | 审计报告 |
+| 1.7 | 完成总结并更新 `AGENTS.md` | 自动 | AGENTS 状态更新 |
 
-> 💡 每个复杂系统建议在独立会话中设计。简单项目可跳过。
+### Phase 2：系统详设，`/design-system`
 
-### Phase 3: 任务规划 — `/blueprint`
+你对 AI 说：
 
-> 🧑 你说：`/blueprint`
+```text
+/design-system backend-api-system
+```
 
 | 步骤 | 操作 | 触发 | 产出 |
-|:----:|------|:----:|------|
-| 3.1 | 加载架构文档 | 🤖 | — |
-| 3.2 | 任务拆解 — WBS 方法，每个 task 2-8h | 🤖 | 任务列表 |
-| 3.3 | Sprint 路线图 — 退出标准 + 集成验证任务 | 🤖 | Sprint 表 |
-| 3.4 | 依赖分析 — Mermaid 图 | 🤖 | 依赖图 |
-| 3.5 | User Story 交叉验证 — 覆盖率安全网 | 🤖 | User Story Overlay |
-| 3.6 | 生成文档 + 更新 AGENTS.md | 🤖 | `05_TASKS.md` |
-| 3.7 | **⏸️ 人类检查点** — 确认任务清单 | ⏸️ | — |
+|------|------|------|------|
+| 2.1 | 加载 PRD + Architecture + ADR | 自动 | - |
+| 2.2 | 深入理解系统边界 | 自动 | - |
+| 2.3 | 调研最佳实践 | 自动 | `_research/{system}-research.md` |
+| 2.4 | 完成详细设计 | 自动 | - |
+| 2.5 | 文档化 | 自动 | `04_SYSTEM_DESIGN/{system}.md` |
+| 2.6 | 确认系统设计 | 检查点 | - |
 
-### Phase 4: 编码执行 — `/forge`
+### Phase 3：任务规划，`/blueprint`
 
-> 🧑 你说：`/forge`
+你对 AI 说：
 
-**每个 Wave（2-5 个任务）的执行循环：**
+```text
+/blueprint
+```
+
+| 步骤 | 操作 | 触发 | 产出 |
+|------|------|------|------|
+| 3.1 | 加载架构文档 | 自动 | - |
+| 3.2 | 用 WBS 拆解任务 | 自动 | 任务列表 |
+| 3.3 | 规划 Sprint 和退出标准 | 自动 | Sprint 表 |
+| 3.4 | 做依赖分析 | 自动 | 依赖图 |
+| 3.5 | User Story 交叉验证 | 自动 | User Story Overlay |
+| 3.6 | 生成 `05_TASKS.md` 并更新 AGENTS | 自动 | `05_TASKS.md` |
+| 3.7 | 确认任务清单 | 检查点 | - |
+
+### Phase 4：编码执行，`/forge`
+
+你对 AI 说：
+
+```text
+/forge
+```
+
+每个 Wave 的执行循环：
 
 | 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 0 | 恢复定位 — 读 Wave 块 + Tasks 状态 | 🤖 |
-| 1 | 波次规划 — 选任务 + ⏸️ 你确认 | 🤖 + ⏸️ |
-| 2 | 加载文档（Architecture → System Design → ADR） | 🤖 |
+|------|------|------|
+| 0 | 恢复定位，读取 Wave 块和任务状态 | 自动 |
+| 1 | 规划本轮任务并等待确认 | 自动 + 检查点 |
+| 2 | 加载 Architecture、System Design、ADR | 自动 |
 
-**每个 Task 的执行循环：**
+每个 Task 的执行循环：
 
 | 步骤 | 操作 | 触发 | 说明 |
-|:----:|------|:----:|------|
-| **3.1** | 加载任务级上下文 | 🤖 | 读 task 描述、验收标准 |
-| **3.2** | Think Before Code | 🤖 | 想清楚再写 |
-| **3.3** | 测试先行 (RED) | 🤖 | 写测试 → 确认失败 |
-| | ↳ TDD 豁免：纯配置/UI/文档 | 🤖 | 可跳过 3.3 |
-| **3.4** | 最小实现 (GREEN) | 🤖 | 只写让测试通过的代码 |
-| **3.4.1** | 结构重构 (REFACTOR) | 🤖 | 命名/重复/嵌套/长度，不做性能优化 |
-| **3.5** | 验证 | 🤖 | 逐条检查验收标准 |
-| **3.5.1** | Harness Quick Check | 🤖 | 编译+分析+测试+密钥扫描 |
-| **3.6** | 遵从性检查 | 🤖 | 7 项 checklist |
-| **3.7** | 轻量 Code Review | 🤖 | 4 项安全扫描 |
-| **3.8** | 提交 | 🤖 | git commit + 回写进度 |
+|------|------|------|------|
+| 3.1 | 加载任务级上下文 | 自动 | 读取 task 描述与验收标准 |
+| 3.2 | Think Before Code | 自动 | 先想清楚再动手 |
+| 3.3 | 测试先行（RED） | 自动 | 先写失败测试 |
+| 3.4 | 最小实现（GREEN） | 自动 | 只写让测试通过的实现 |
+| 3.4.1 | 结构重构（REFACTOR） | 自动 | 改命名、去重复、减嵌套 |
+| 3.5 | 验证 | 自动 | 逐条检查验收标准 |
+| 3.5.1 | Harness Quick Check | 自动 | 编译、分析、短测试、密钥扫描 |
+| 3.6 | 遵从性检查 | 自动 | checklist |
+| 3.7 | 轻量 Code Review | 自动 | 安全和质量快速检查 |
+| 3.8 | Commit 并回写进度 | 自动 | 更新 AGENTS 和任务状态 |
 
-**Wave 结束：**
-
-| 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 4.1-4.3 | 波次结算 + 更新 AGENTS.md | 🤖 |
-| 4.4 | 性能审视（跑 benchmark → 识别瓶颈 → 记录优化任务） | 🤖 |
-| 4.5 | **⏸️** 你确认波次完成 | ⏸️ |
-
-**里程碑结算（Sprint 完成时）：**
+Wave 结束时：
 
 | 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 5.1 | Harness Full Verification（L3） | 🤖 |
-| 5.2 | Integration Tests（L4） | 🤖 |
-| 5.3 | 完整 `/code-review [scope]` | 🧑 |
+|------|------|------|
+| 4.1-4.3 | 波次结算并更新 AGENTS | 自动 |
+| 4.4 | 性能审视 | 自动 |
+| 4.5 | 确认波次完成 | 检查点 |
 
-### Phase 5: 部署 — `/deploy`
+### Phase 5：部署，`/deploy`
 
-> 🧑 你说：`/deploy production`
+你对 AI 说：
 
-| 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 1 | Harness 自动验证（Full + Security + Integration） | 🤖 |
-| 2 | 预部署检查清单 | ⏸️ |
-| 3 | 构建 | 🤖 |
-| 4 | 部署 | 🤖 |
-| 5 | Shadow Mode（生产环境推荐，30min 观察） | ⏸️ |
-| 6 | 健康检查 | 🤖 |
-| 7 | 部署报告 | 🤖 |
-
----
-
-## 场景 2: 编写阶段 — 新增功能
-
-项目已经完成首次 `/genesis` + `/blueprint`，存在活动架构版本和任务清单，正在开发中。
-
-### 路线 A: 功能在任务清单内
-
-```
-🧑 你说：/forge
-```
-
-AI 自动从上次断点继续（通过 AGENTS.md Wave 块 + Tasks checkbox 恢复），执行 TDD 循环。
-
-### 路线 B: 新功能（轻量规划）
-
-```
-🧑 你说：/plan 新增评论功能
+```text
+/deploy production
 ```
 
 | 步骤 | 操作 | 触发 |
-|:----:|------|:----:|
-| 1 | 重述需求 + 架构分析 + 拆解成独立任务 + 测试策略 + 风险 | 🤖 |
-| 2 | 输出 `implementation_plan.md`（含任务列表） | 🤖 |
-| 3 | **⏸️** 等你确认 | ⏸️ |
+|------|------|------|
+| 1 | Harness 自动验证 | 自动 |
+| 2 | 预部署检查清单 | 检查点 |
+| 3 | 构建 | 自动 |
+| 4 | 部署 | 自动 |
+| 5 | Shadow Mode 观察 | 检查点 |
+| 6 | 健康检查 | 自动 |
+| 7 | 输出部署报告 | 自动 |
 
-确认后，每个任务按 forge 相同的循环执行：
+## 场景 2：编写阶段，新功能开发
 
-```
-🧑 你说：按计划实现，遵循 /forge 的任务循环
-```
+项目已经完成首次 `/genesis` + `/blueprint`，存在活动架构版本与任务清单。
 
-| 步骤 | 操作 | 触发 | 说明 |
-|:----:|------|:----:|------|
-| **3.1** | 加载任务上下文 | 🤖 | 读 plan 中该任务的描述 |
-| **3.2** | Think Before Code | 🤖 | 想清楚再写 |
-| **3.3** | 测试先行 (RED) | 🤖 | **单独一次回答** |
-| **3.4** | 最小实现 (GREEN) | 🤖 | **单独一次回答** |
-| **3.4.1** | 结构重构 (REFACTOR) | 🤖 | 命名/重复/嵌套，不做性能优化 |
-| **3.5** | 验证 + Harness Quick Check | 🤖 | 逐条验收 + 自动检查 |
-| **3.6-3.7** | 遵从性检查 + 轻量 Code Review | 🤖 | 可合并 |
-| **3.8** | Git commit（含任务标识） | 🤖 | 可合并 |
-| ↻ | 下一个任务 | 🤖 | — |
+### 路线 A：功能已经在任务清单内
 
-全部完成后：
+你说：
 
-```
-🧑 你说：/code-review HEAD~3..HEAD
+```text
+/forge
 ```
 
-AI 对最近一段提交进行 8 项审查（安全 → 质量 → Go 基线 → 测试覆盖 → 报告）。你通过 walkthrough 人工审查。
+AI 会通过 AGENTS 里的 Wave 块和 `05_TASKS.md` 的勾选状态恢复上下文，然后继续执行 TDD 循环。
 
-### 路线 C: 新功能（详尽蓝图）
+### 路线 B：新功能，但先轻量规划
 
+你说：
+
+```text
+/plan 新增评论功能
 ```
-🧑 你说：/generate-prp 新增 WebSocket 实时通知
+
+AI 会：
+
+- 重述需求
+- 分析架构影响
+- 拆解任务
+- 给出测试策略与风险
+- 输出 `implementation_plan.md`
+
+确认之后，再按 `/forge` 的任务循环执行。
+
+### 路线 C：新功能，需要详尽蓝图
+
+你说：
+
+```text
+/generate-prp 新增 WebSocket 实时通知
 ```
 
-AI 生成带验证门控的 PRP 蓝图 → ⏸️ 你确认 → `/execute-prp` 按蓝图逐步实现。
+AI 会先生成 PRP 蓝图，确认后再通过 `/execute-prp` 逐步实现并验证。
 
----
-
-## 场景 3: 日常维护
+## 场景 3：日常维护
 
 | 你想做什么 | 命令 | AI 做什么 |
-|----------|------|----------|
-| 遇到 Bug | `/debug 描述` | 假设驱动调试 → 修复 → 记录 error_journal |
-| 构建失败 | `/build-fix` | 诊断 → 修复 → 验证 |
-| 微调任务 | `/change T2.1.3 改为 RBAC` | 更新 Tasks + Changelog |
+|------------|------|----------|
+| 遇到 Bug | `/debug 描述` | 假设驱动调试、修复、记录 error journal |
+| 构建失败 | `/build-fix` | 诊断、修复、验证 |
+| 微调任务 | `/change T2.1.3 改为 RBAC` | 更新 Tasks 与 Changelog |
 | 查看进度 | `/status` | 输出项目状态卡 |
-| 审查代码 | `/code-review [scope]` | 8 项检查 + 报告 |
-| 重大重构 | `/genesis` | 创建 v{N+1}，演进架构 |
-
----
+| 审查代码 | `/code-review [scope]` | 输出结构化审查报告 |
+| 重大重构 | `/genesis` | 创建 `v{N+1}` 并演进架构 |
 
 ## 工作流速查表
 
-### 架构设计（来自 ANWS）
+### 架构设计
 
-| 命令 | 一句话 |
-|------|--------|
-| `/quickstart` | 不知道从哪开始？从这里 |
+| 命令 | 用途 |
+|------|------|
+| `/quickstart` | 不知道从哪开始时的入口 |
 | `/genesis` | 完整设计流程（PRD → 架构 → ADR） |
-| `/scout` | 接手已有项目时的代码探索 |
-| `/design-system` | 为某个系统设计详细架构 |
-| `/blueprint` | 把架构拆成可执行的任务清单 |
+| `/scout` | 接手已有项目时的代码侦察 |
+| `/design-system` | 为单个系统做详细设计 |
+| `/blueprint` | 把架构拆成可执行任务 |
 | `/change` | 微调已有任务 |
 | `/explore` | 技术调研 |
 | `/challenge` | 质疑现有架构决策 |
-| `/craft` | 创建新的工作流/技能 |
+| `/craft` | 创建新的 workflow / skill / prompt |
 
-### 编码质量（来自 ECC）
+### 编码质量
 
-| 命令 | 一句话 |
-|------|--------|
-| `/plan` | 轻量级功能规划 |
+| 命令 | 用途 |
+|------|------|
+| `/plan` | 轻量功能规划 |
 | `/tdd` | 先写测试再实现 |
-| `/code-review [scope]` | 代码审查（8 项检查含 Go 基线） |
+| `/code-review [scope]` | 完整代码审查 |
 | `/build-fix` | 构建失败时修复 |
-| `/forge` | 按任务清单分 Wave 编码（主力工作流） |
+| `/forge` | 按任务清单分 Wave 编码 |
 
 ### Context Engineering
 
-| 命令 | 一句话 |
-|------|--------|
-| `/generate-prp` | 生成详尽的实现蓝图（含验证门控） |
-| `/execute-prp` | 按蓝图逐步实现+验证 |
+| 命令 | 用途 |
+|------|------|
+| `/generate-prp` | 生成实现蓝图 |
+| `/execute-prp` | 按蓝图实现并验证 |
 
-### 运维与调试（来自 Kit）
+### 运维与调试
 
-| 命令 | 一句话 |
-|------|--------|
-| `/debug` | 假设驱动的系统化调试 |
-| `/deploy` | Harness 验证 → 构建 → 部署 → 健康检查 |
-| `/status` | 项目全景状态卡 |
-
----
+| 命令 | 用途 |
+|------|------|
+| `/debug` | 系统化调试 |
+| `/deploy` | 验证、构建、部署、健康检查 |
+| `/status` | 输出项目全景状态 |
 
 ## 核心机制
 
-### Harness Engineering — 分层验证
+### Harness Engineering：分层验证
 
-验证不靠 AI 自律，靠系统强制。
+验证不靠 AI 自律，靠系统强制：
 
 | 层级 | 名称 | 何时跑 | 说明 |
-|:----:|------|--------|------|
-| L1 | Quick Check | 每个 task 后 | 编译 + 静态分析 + 短测试 + 密钥扫描 |
-| L2 | Security Gate | 每次 commit 前 | 硬编码密钥 + 注入检测 + 错误泄露检查 |
-| L3 | Full Verification | deploy 前 | Lint + Race 检测 + Coverage + 依赖审计 |
-| L4 | Integration Tests | Wave 完成后 | 需要外部依赖（DB/Cache/MQ 等） |
+|------|------|--------|------|
+| L1 | Quick Check | 每个 task 后 | 编译、静态分析、短测试、密钥扫描 |
+| L2 | Security Gate | 每次 commit 前 | 硬编码密钥、注入、错误泄露检查 |
+| L3 | Full Verification | `/deploy` 前 | Lint、Race/并发检测、Coverage、依赖审计 |
+| L4 | Integration Tests | Wave 完成后 | 依赖外部 DB/Cache/MQ 的场景 |
 
-### TDD 驱动 — 先写测试再写代码
+### TDD 驱动
 
-`/forge` 的任务循环强制 TDD：
+`/forge` 的核心节奏仍然是：
 
+```text
+RED → GREEN → REFACTOR → VERIFY
 ```
-3.3 写测试 (RED)  →  3.4 写实现 (GREEN)  →  3.5 验证
-```
 
-豁免条件：纯配置/纯 UI/文档类任务可跳过 TDD，但 Code Review 仍然强制。
+纯配置、纯文档、纯 UI 类任务可以豁免 TDD，但不能跳过验证与审查。
 
-### 上下文恢复 — 文件系统即外部记忆
+### 上下文恢复：文件系统即外部记忆
 
-AI 的"记忆"不存在对话里，而是存在文件系统里：
+AI 的“记忆”不依赖聊天窗口，而依赖文件系统：
 
-| 层 | 存在哪 | 恢复什么 |
-|---|--------|---------|
-| AGENTS.md | 项目根目录 | 项目地图 + 当前状态 + 宪法 |
-| Wave 块 | AGENTS.md 内 | 当前正在做的波次 |
-| Task checkbox | 05_TASKS.md | 每个任务的完成状态 `[x]`/`[ ]` |
-| Prevention Rules | error_journal.md | 已知的坑，避免重复 |
+| 层 | 位置 | 恢复什么 |
+|----|------|---------|
+| 根锚点 | `AGENTS.md` | 项目地图、状态、宪法 |
+| Wave 状态 | `AGENTS.md` | 当前波次与当前阶段 |
+| 任务状态 | `.vibe/genesis/v{N}/05_TASKS.md` | 每个任务的完成状态 |
+| Prevention Rules | `.vibe/artifacts/error_journal.md` | 已知错误与避免规则 |
 
-对话可以随时重置，进度不会丢失。
+所以即使对话重置，项目上下文也不会丢失。
 
-### Git 恢复 — 代码级回退
+### Git 恢复：代码级回退
 
-因为每个 task 独立 commit 且 message 包含 Task ID，你可以精确回退到任意一个任务：
+因为每个 task 最好独立 commit，且 message 里带 Task ID，所以可以精确回退：
 
 | 场景 | 命令 |
 |------|------|
 | 查看某个任务的变更 | `git log --oneline --grep="T{X.Y.Z}"` |
 | 回退某个任务 | `git revert <commit-hash>` |
-| 回退到某个 Wave 前 | `git reset --hard <hash>`（⚗️ 破坏性） |
+| 回退到某个 Wave 前 | `git reset --hard <hash>` |
 | push 后安全回退 | `git revert` + `git push` |
 
-### 输出节制 — Token 节约策略
+### 输出节制：重要任务单独做
 
-AI 假设每次输出 token 都是有限的。目的不是把所有事拆成单独对话，而是确保重要环节不因贪多而含糊：
+为避免关键环节因为一次回复装太多内容而变浅，以下任务应单独完成：
 
-| 任务类型 | 策略 | 原因 |
-|---------|------|------|
-| 写测试（§3.3） | **单独一次回答** | 确保深度和准确性 |
-| 写实现（§3.4） | **单独一次回答** | 确保代码质量 |
-| 写 plan / 架构文档 | **单独一次回答** | 确保规划完整 |
-| 系统详设（/design-system） | **单独一次回答** | 设计需要深度思考 |
-| 完整 Code Review | **单独一次回答** | 审查需要全面性 |
-| Debug 根因分析 | **单独一次回答** | 假设验证需严谨 |
-| 遵从性+Review+Commit | 可合并一次执行 | 轻量检查类 |
-| 波次规划+文档加载 | 可合并一次执行 | 准备类 |
+- 写测试
+- 写实现
+- 写复杂 plan
+- 生成架构文档
+- 系统详设
+- 完整 Code Review
+- Debug 根因分析
 
-### Error Self-Evolution — 错误自进化
+### Error Self-Evolution：错误自进化
 
 遇到 bug 或走错方向时：
-1. 记录到 `.antigravity/artifacts/error_journal.md`（含根因和防范规则）
-2. 每次行动前扫描 Prevention Rules 速查表
-3. 系统自动积累"免疫力"
 
----
+1. 记录到 `.vibe/artifacts/error_journal.md`
+2. 每次行动前扫描 Prevention Rules
+3. 修复后同步更新错误日志和规则
 
 ## 宪法规则（20 条）
 
 | # | 规则 | 来源 |
 |---|------|------|
-| 1 | 版本即法律 — 架构文档只演进不修补 | ANWS |
-| 2 | 显式上下文 — 决策写入 ADR | ANWS |
-| 3 | 交叉验证 — 编码前对照任务清单 | ANWS |
-| 4 | Plan Before Execute — 先规划再编码 | ECC |
-| 5 | Test-Driven — 先写测试再实现，80%+ 覆盖率 | ECC |
-| 6 | Security-First — 绝不硬编码密钥 | ECC |
-| 7 | Small Files — 函数≤50行，文件≤800行 | ECC |
+| 1 | 版本即法律：架构文档只演进不修补 | ANWS |
+| 2 | 显式上下文：决策写入 ADR | ANWS |
+| 3 | 交叉验证：编码前对照任务清单 | ANWS |
+| 4 | Plan Before Execute：先规划再编码 | ECC |
+| 5 | Test-Driven：先写测试再实现 | ECC |
+| 6 | Security-First：绝不硬编码密钥 | ECC |
+| 7 | Small Files：限制函数和文件复杂度 | ECC |
 | 8 | 不假设缺失的上下文 | CE |
 | 9 | 不编造不存在的 API | CE |
-| 10 | 参考 .antigravity/examples/ | CE |
+| 10 | 参考 `.vibe/examples/` | CE |
 | 11 | 验证不可跳过 | CE |
-| 12 | Declare Before Act — 使用 Skill 前先声明 | Harness |
-| 13 | Cross-Reference — 实现前检查 .antigravity/examples/ | Harness |
-| 14 | Socratic Gate — 新功能先问 3 个问题 | Kit |
-| 15 | Token 节约 — 每次只输出当前步骤必要内容，不做多余解释 | Output |
-| 16 | 重要任务单独执行 — 写测试/写实现/plan 必须单独一次回答 | Output |
-| 17 | 轻量任务可合并 — 检查/review/commit 可同次执行 | Output |
-| 18 | Socratic Gate — Bug 先确认影响范围 | Kit |
-| 19 | Socratic Gate — 模糊请求先问目的 | Kit |
-| 20 | Error Self-Evolution — 错误记录到 journal + Prevention Rules | ECC |
-
----
+| 12 | 使用 Skill 前先声明 | Harness |
+| 13 | 实现前交叉检查 `.vibe/examples/` | Harness |
+| 14 | 新功能先问 3 个问题 | Kit |
+| 15 | 每次只输出当前步骤必要内容 | Output |
+| 16 | 重要任务必须单独执行 | Output |
+| 17 | 轻量检查可以合并执行 | Output |
+| 18 | Bug 先确认影响范围 | Kit |
+| 19 | 模糊请求先问目的 | Kit |
+| 20 | 错误沉淀到 journal + Prevention Rules | ECC |
 
 ## 你需要做的 vs AI 做的
 
 | 你的动作 | 频率 |
-|---------|------|
-| 放入架构文档 → `.antigravity/docs/` | 项目初始化时一次 |
-| 输入命令（`/genesis` 等） | 每个阶段一次 |
-| 确认检查点 | 每个阶段 1-2 次 |
-| 通过 walkthrough 人工 code review | Wave 结束后 |
-| 决定是否重置上下文 | 对话太长/AI 跑偏时 |
+|----------|------|
+| 初始化模板 | 项目开始时一次 |
+| 修改 `TARGET_PROJECT` | 需要时 |
+| 放入文档到 `.vibe/docs/` | 架构输入变更时 |
+| 确认工作流检查点 | 每个阶段 1-2 次 |
+| 做最终人工审查 | Wave 或里程碑结束后 |
 
-**其余全部由 AI 自动执行。**
+其余大部分流程，都应由 AI 按工作流自动推进。
 
----
+## 开发者说明
+
+### 关键命令
+
+运行测试：
+
+```bash
+npm test
+```
+
+生成本地 demo：
+
+```bash
+node ./src/vct/bin/cli.js init ./out/demo --target antigravity,cursor,claude,codex
+```
+
+更新本地 demo：
+
+```bash
+node ./src/vct/bin/cli.js update ./out/demo
+```
+
+### 当前维护约束
+
+目前我们要求：
+
+- canonical template source 自身就是自洽的
+- `check-template-consistency.sh` 检查 `.agents/workflows` 和 `.agents/skills`
+- 共享根始终是 `.vibe` 和 `.agents`
+- 平台目录只保留兼容层投影，不再成为 source of truth
+
+### 如果你要继续改模板
+
+优先改这些位置：
+
+- `src/vct/templates/AGENTS.md`
+- `src/vct/templates/.agents/workflows/`
+- `src/vct/templates/.agents/skills/`
+- `src/vct/templates/scaffold/.vibe/`
+
+不要直接把某个平台兼容层当作真相源去维护。
+
+## Maintainer Check
+
+合并或发布前，至少执行：
+
+```bash
+npm test
+```
+
+如果你想额外验证某个生成结果：
+
+```bash
+node ./src/vct/bin/cli.js init ./out/demo --target antigravity,cursor,claude,codex
+bash ./out/demo/.agents/scripts/check-template-consistency.sh
+```
 
 ## License
 
 MIT
-
----
-
-## Maintainer Check
-
-发布或合并模板改动前，建议运行：
-
-```bash
-bash .antigravity/scripts/check-template-consistency.sh
-```

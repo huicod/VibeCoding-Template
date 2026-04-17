@@ -79,3 +79,26 @@ test('template consistency script validates shared workflows and skills under .a
   assert.doesNotMatch(script, /\.antigravity\/workflows/);
   assert.doesNotMatch(script, /\.antigravity\/skills/);
 });
+
+test('scaffold guidance preserves docs, examples, and error-journal semantics', async () => {
+  const docsReadme = await fs.readFile(path.join(SCAFFOLD_ROOT, '.vibe', 'docs', 'README.md'), 'utf8');
+  const examplesReadme = await fs.readFile(path.join(SCAFFOLD_ROOT, '.vibe', 'examples', 'README.md'), 'utf8');
+  const errorJournal = await fs.readFile(path.join(SCAFFOLD_ROOT, '.vibe', 'artifacts', 'error_journal.md'), 'utf8');
+
+  assert.match(docsReadme, /\.vibe\/docs\//);
+  assert.match(docsReadme, /\/genesis/);
+  assert.match(docsReadme, /architecture-overview\.pdf/);
+  assert.match(docsReadme, /requirements\.md/);
+
+  assert.match(examplesReadme, /\.vibe\/examples\//);
+  assert.match(examplesReadme, /copy-paste/);
+  assert.match(examplesReadme, /\/\/ PATTERN:/);
+  assert.match(examplesReadme, /\/\/ CRITICAL:/);
+  assert.match(examplesReadme, /table-driven tests/);
+
+  assert.match(errorJournal, /AI must scan/);
+  assert.match(errorJournal, /Prevention Rules/);
+  assert.match(errorJournal, /\| ID \| Rule \| Source \|/);
+  assert.match(errorJournal, /What happened:/);
+  assert.match(errorJournal, /Affected files:/);
+});

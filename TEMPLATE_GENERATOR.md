@@ -22,13 +22,9 @@ That means:
 - `.vibe/` stores project context, docs, examples, genesis, artifacts, and install metadata
 - platform directories such as `.antigravity/`, `.cursor/`, `.claude/`, and `.codex/` only contain compatibility entrypoints
 
-Project scaffolding is generated from dedicated template files under `src/vct/templates/scaffold/` so the repository's own project records do not leak into generated projects.
-
-Examples of repository-specific files that are intentionally not projected into `.vibe/`:
-
-- `.antigravity/docs/GUIDE.md`
-- `.antigravity/artifacts/plan_template_review_fixes_20260408.md`
-- live contents under `.antigravity/genesis/`
+Project scaffolding is generated from dedicated template files under `src/vct/templates/scaffold/`.
+The repository root no longer keeps a legacy `.antigravity/` mirror or a legacy root `AGENTS.md` copy.
+Canonical template maintenance now happens only under `src/vct/templates/`.
 
 ## Ownership model
 
