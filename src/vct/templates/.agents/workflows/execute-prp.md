@@ -17,7 +17,7 @@ PRP 文件本身保留在控制面板仓库；代码实现和验证发生在 `TA
 根据已生成的 PRP 蓝图实现功能：
 
 1. **加载 PRP**
-   - 读取指定的 PRP 文件（如 `.vibe/artifacts/prp_todo_crud.md`）
+   - 读取指定的 PRP 文件（如 `.vibe/artifacts/prp_[feature].md`）
    - 理解所有上下文、需求和验证条件
    - 如需补充研究，先完成后再开始编码
 

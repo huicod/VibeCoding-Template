@@ -14,6 +14,11 @@ description: 系统化调试工作流，用假设驱动的方法定位和修复 
 
 如果问题只涉及控制面板文档或 workflow 本身，则留在控制面板仓库处理；否则默认 bug 调查发生在 `TARGET_PROJECT`。
 
+开始调试前，补充读取：
+
+- `.vibe/artifacts/error_journal.md` 中与当前问题相关的 Prevention Rules
+- `.vibe/artifacts/logs/` 中最近一次相关构建 / 调试 / 部署日志（如存在）
+
 当遇到 bug、异常行为或性能问题时，按以下流程系统化排查：
 
 1. **信息收集**
@@ -36,6 +41,7 @@ description: 系统化调试工作流，用假设驱动的方法定位和修复 
 4. **修复并防范**
    - 修复根因（不是症状）
    - 添加测试覆盖该 bug 场景
+   - 将调查过程和关键证据保存到 `.vibe/artifacts/logs/debug_[issue]_[timestamp].md`
    - 记录到 `.vibe/artifacts/error_journal.md`
    - 说明如何防止同类问题再现
 

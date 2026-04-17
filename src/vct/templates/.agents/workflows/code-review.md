@@ -46,10 +46,15 @@ description: 代码安全和质量审查。支持审查 working tree、staged、
 - 审查仓库：`TARGET_PROJECT` 或控制面板仓库
 - 审查范围：`working-tree` / `staged` / `commit` / `range`
 - 解析后的 commit 或 range
+- 如存在，对应的 `.vibe/artifacts/plan_[task].md` 或 `.vibe/artifacts/prp_[feature].md`
 
 ---
 
 对选定范围内的改动进行全面审查：
+
+0. **补充上下文**
+   - 如果本次改动可以映射到某个 task / feature，优先读取对应的 `.vibe/artifacts/plan_[task].md` 或 `.vibe/artifacts/prp_[feature].md`
+   - 如存在 `.vibe/examples/` 中的相关模式，作为“预期实现风格”参考
 
 1. **获取改动文件**
    - 根据 scope 运行对应的 git 命令
@@ -57,7 +62,7 @@ description: 代码安全和质量审查。支持审查 working tree、staged、
 
 2. **安全检查 (CRITICAL)**
    - 硬编码的凭证、API 密钥、Token
-   - SQL/NoSQL 注入（是否使用参数化查询）
+   - SQL / NoSQL 注入（是否使用参数化查询）
    - 缺失的输入验证
    - 不安全的依赖
    - 错误信息是否泄露敏感数据
@@ -67,7 +72,7 @@ description: 代码安全和质量审查。支持审查 working tree、staged、
    - 文件超过 800 行
    - 嵌套超过 4 层
    - 缺失的 error 处理（静默忽略错误）
-   - TODO/FIXME 注释
+   - TODO / FIXME 注释
    - 缺失的公共 API 文档
 
 4. **语言惯用写法 (MEDIUM)**
@@ -84,18 +89,18 @@ description: 代码安全和质量审查。支持审查 working tree、staged、
    - context 作为第一个参数
    - 零值是否可用
    - goroutine 是否有 leak 风险（channel 未关闭、缺少 done signal）
-   - 并发安全（共享状态是否有 mutex/atomic 保护）
+   - 并发安全（共享状态是否有 mutex / atomic 保护）
 
 6. **测试覆盖 (MEDIUM)**
    - 新增代码是否有对应测试
    - 测试是否覆盖正常路径 + 边界 + 错误情况
    - 修改的函数是否更新了相关测试
 
-7. **生成报告**：
+7. **生成报告**
    - 按严重性排序：CRITICAL → HIGH → MEDIUM → LOW
    - 每个问题标注：文件位置、行号、描述、建议修复
    - 报告头必须包含 review scope
 
-8. **判定结果**：
+8. **判定结果**
    - 有 CRITICAL 或 HIGH 问题 → **阻止提交**，必须修复
-   - 仅 MEDIUM/LOW → 建议修复，可以提交
+   - 仅 MEDIUM / LOW → 建议修复，可以提交
