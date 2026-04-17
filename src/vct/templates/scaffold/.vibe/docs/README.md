@@ -1,10 +1,11 @@
 # .vibe/docs
 
-Place your project's original design inputs here. AI should read this folder before
-workflows such as `/genesis`, and also before `/plan` when the plan depends on
-project requirements or architecture decisions.
+Place your project's original design inputs here. AI should read this folder
+before workflows such as `/genesis`, and also before `/plan` when the plan
+depends on project requirements or architecture decisions.
 
-This folder is for project-specific design material, not template-maintainer notes.
+This folder is for project-specific design material, not template-maintainer
+notes.
 
 ## What to put here
 

@@ -6,11 +6,18 @@ improve implementation quality.
 The generator ships this folder as a placeholder on purpose, so template-repo
 examples do not leak into every generated project.
 
+## Who writes and who reads it
+
+- Primary writers: humans curating stable project patterns.
+- Optional writer: `/forge` may promote a verified, reusable pattern here after a
+  task or wave is complete.
+- Common readers: `/generate-prp`, `/execute-prp`, `/tdd`, `/code-review`, and
+  `/forge`.
+
 ## How to ask AI to use it
 
 ```text
-请参考 @.vibe/examples/ 中的代码模式实现类似功能。
-不要直接复制，先理解模式，再按当前需求实现。
+请参考 @.vibe/examples/ 中的代码模式实现类似功能。不要直接复制，先理解模式，再按当前需求落地。
 ```
 
 ## Good example categories
@@ -32,3 +39,4 @@ examples do not leak into every generated project.
 - Mark the key idea with `// PATTERN:` and constraints with `// CRITICAL:`.
 - Prefer examples that match the real stack, framework, and directory layout of
   the project.
+- When promoting a new example, strip business-specific secrets or private data.
