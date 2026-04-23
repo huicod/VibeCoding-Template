@@ -26,8 +26,8 @@ check_no_match() {
   fi
 }
 
-expected_workflows=19
-expected_skills=19
+expected_workflows=24
+expected_skills=20
 
 actual_workflows="$(find ".agents/workflows" -maxdepth 1 -type f | wc -l | tr -d ' ')"
 actual_skills="$(find ".agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"

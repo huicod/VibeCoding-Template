@@ -1,0 +1,60 @@
+---
+description: Worker 绑定到 {{SCOPE_NAME}} 时的写入面约束与必读规范
+globs:
+  - {{SCOPE_PATH}}/**
+alwaysApply: false
+---
+
+# Scope Rule: {{SCOPE_NAME}} ({{SCOPE_LABEL}})
+
+本规则在编辑 `{{SCOPE_PATH}}/**` 下任何文件时自动激活。Worker 应当把它视为硬约束；Cursor 会在工具调用层阻止越界。
+
+## 你现在的身份
+
+如果你在编辑本 scope 内的文件，你要么是 **Worker bound to `{{SCOPE_NAME}}`**，要么是 **Reviewer / Advisor**（只读）。除此之外不应有任何角色在此写入。
+
+## 可写面
+
+- ✅ `{{SCOPE_PATH}}/**`（含 `{{SCOPE_PATH}}/.vibe/`、`{{SCOPE_PATH}}/.vibe/artifacts/`）
+
+## 不可写面（即使位于本工作区其他位置）
+
+- ❌ 其他 scope 的目录（见 [.vibe/coord/registry.yaml](../../.vibe/coord/registry.yaml) 完整清单）
+- ❌ `kind: contract` 的 scope — 改动必须走契约变更流程（`/propose-contract` 或 Orchestrator 协调）
+- ❌ `.vibe/genesis/**` — umbrella 架构真相源，只读
+- ❌ `.vibe/coord/**` — 协调层，只有 Orchestrator 可写
+- ❌ `.agents/**` — 共享 workflows/skills，template 级
+- ❌ `AGENTS.md`（根） — umbrella 锚点，只有 Orchestrator 可写
+- ❌ 父仓库根的任何 git 操作 — Worker 不 commit/push 父仓库
+
+唯一允许向 umbrella 写入的例外：`.vibe/artifacts/error_journal.md` 的 append-only 追加（带 scope + 时间戳 + UUID 注释）。
+
+## 必读规范（编码前）
+
+### 强制
+
+- [.vibe/genesis/{{ARCH_VERSION}}/08_CODING_STANDARDS.md](../../.vibe/genesis/{{ARCH_VERSION}}/08_CODING_STANDARDS.md) — 全局编码规范
+- [.vibe/genesis/{{ARCH_VERSION}}/07_ARCHITECTURE_CHEATSHEET.md](../../.vibe/genesis/{{ARCH_VERSION}}/07_ARCHITECTURE_CHEATSHEET.md) — 架构速查
+- [.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md](../../.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md) 的 **{{SCOPE_SECTION}}** 章节
+- [.vibe/artifacts/error_journal.md](../../.vibe/artifacts/error_journal.md) 中与本 scope 类型相关的 Prevention Rules
+- `{{SCOPE_PATH}}/.vibe/AGENTS.service.md` 与 `{{SCOPE_PATH}}/.vibe/05_TASKS.md`
+
+### 强烈推荐（按需阅读；write 仍只读）
+
+- [.vibe/genesis/{{ARCH_VERSION}}/01_PRD.md](../../.vibe/genesis/{{ARCH_VERSION}}/01_PRD.md) — 产品需求全景
+- [.vibe/genesis/{{ARCH_VERSION}}/03_ADR/](../../.vibe/genesis/{{ARCH_VERSION}}/03_ADR/) — 所有架构决策
+- [.vibe/genesis/{{ARCH_VERSION}}/06_CHANGELOG.md](../../.vibe/genesis/{{ARCH_VERSION}}/06_CHANGELOG.md) — 历史版本演进
+- [.vibe/genesis/{{ARCH_VERSION}}/00_MANIFEST.md](../../.vibe/genesis/{{ARCH_VERSION}}/00_MANIFEST.md) — genesis 文档导航
+- [.vibe/genesis/{{ARCH_VERSION}}/04_SYSTEM_DESIGN/](../../.vibe/genesis/{{ARCH_VERSION}}/04_SYSTEM_DESIGN/) — 各 scope 的 L0 设计与 `_research/` 调研笔记
+- umbrella 历史 `.vibe/genesis/{{ARCH_VERSION}}/05_TASKS*.md` — 只读参考（scope 自身 `.vibe/05_TASKS.md` 才是真相源）
+- [.vibe/coord/dependencies.yaml](../../.vibe/coord/dependencies.yaml) — 跨 scope 依赖关系
+
+## Git 工作方式
+
+- Worker 只在 `{{SCOPE_NAME}}` 子仓库内 commit，分支名 `feat/<task-id>-<slug>`
+- 不对父仓库做任何 `git add` / `commit` / `push`
+- 每个任务独立 commit，message 含 Task ID
+
+## 与其他 Worker 的并发
+
+你可能正与其他 scope 的 Worker 并发工作。他们在自己的 scope 写代码，你在你的；双方通过 git 分支 + PR 间接同步；不要尝试跨 scope 直接读写对方正在编辑的文件（即便物理上可读，语义上是他们的在飞工作区）。

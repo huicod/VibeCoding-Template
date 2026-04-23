@@ -41,13 +41,14 @@ Vibecoding 的核心问题，不是 AI 写不出代码，而是：
 1. 共享核心
 
 - `AGENTS.md`
-- `.agents/workflows/`
-- `.agents/skills/`
+- `.agents/workflows/`（含 5 个多 scope 协同 workflow，默认单 scope 模式下不参与调度）
+- `.agents/skills/`（含 `scope-orchestration/` 及其 scope 骨架模板 references）
 - `.agents/scripts/`
 - `.vibe/docs/`
 - `.vibe/genesis/`
 - `.vibe/artifacts/`
 - `.vibe/examples/`
+- `.vibe/coord/`（多 scope 协同层，默认出厂 `topology: single`、空 `scopes:`，仅在 `/promote-scope` 激活后生效）
 - `.vibe/install-lock.json`
 
 2. 平台兼容层
@@ -625,6 +626,21 @@ node ./src/vct/bin/cli.js update ./out/demo
 - `src/vct/templates/scaffold/.vibe/`
 
 不要直接把某个平台兼容层当作真相源去维护。
+
+## 多 scope 协同（单 scope 默认 / opt-in）
+
+模板的**默认形态是单 scope 单 Chat**——单个 `TARGET_PROJECT: ./`、`/genesis` / `/blueprint` / `/forge` 走到底，和以前完全一致。
+
+当项目自然演化到需要多个逻辑独立代码根（多微服务、monorepo 中的多 package、前后端分仓等），可以 **opt-in** 升级到多 scope 协同，额外获得：
+
+- **四角色模型**：Worker（写单个 scope）/ Orchestrator（跨 scope 编排）/ Reviewer（只读审查）/ Advisor（只读全景）
+- **五个协同 workflow**：`worker-bootstrap` / `orchestrate` / `reviewer-session` / `coord-status` / `promote-scope`
+- **一个 `scope-orchestration` skill**：含 `AGENTS.service` / `05_TASKS` / `artifacts README` / `scope-service.mdc` / `scope-contract.mdc` / `dependencies` / `registry` 七份 scope 骨架模板
+- **一份 `.vibe/coord/` 协同层**：`registry.yaml`（默认 `topology: single`、空 `scopes:`）+ `README.md`
+
+激活方式极简：在已生成的项目中调用 `/promote-scope <name>`，workflow 会把 `topology: single` → `topology: multi`，并按 skill references 脚手架新 scope 的 `.vibe/` 与 `.cursor/rules/scope-*.mdc` 物理边界。CLI 自身**不需要任何额外 flag**——`vct init` / `vct update` 永远按同一套共享核心投送文件。
+
+角色自识别协议位于 `AGENTS.md` 顶部的 "🪪 角色自识别协议"：新 Chat 根据首条命令自动判定自己是单 scope、Worker、Orchestrator、Reviewer 还是 Advisor。
 
 ## Maintainer Check
 

@@ -32,6 +32,15 @@ Read `.agents/workflows/quickstart.md` before choosing a route unless the user a
 - `.agents/workflows/execute-prp.md`: execute an existing blueprint
 - `.agents/workflows/craft.md`: create new workflows, prompts, or skills
 
+## Multi-scope routes (opt-in; only when `.vibe/coord/registry.yaml` has `topology: multi`)
+
+- `.agents/workflows/worker-bootstrap.md`: enter a Worker session bound to a single scope (`/worker <scope> [task-id]`)
+- `.agents/workflows/orchestrate.md`: enter an Orchestrator session for cross-scope coordination and umbrella doc upkeep (`/orchestrator`)
+- `.agents/workflows/reviewer-session.md`: enter a read-only Reviewer session for PR / scope review (`/reviewer`)
+- `.agents/workflows/coord-status.md`: read-only aggregated status across all active scopes (`/coord-status`)
+- `.agents/workflows/promote-scope.md`: register a new scope into `.vibe/coord/registry.yaml` and scaffold its `.vibe/` (Orchestrator only)
+- `.agents/skills/scope-orchestration/SKILL.md`: background reading on the role model, templates, and when multi-scope mode applies
+
 ## Rules
 
 1. Start with `.agents/workflows/quickstart.md` when the user is unsure where to begin.
@@ -40,3 +49,4 @@ Read `.agents/workflows/quickstart.md` before choosing a route unless the user a
 4. Treat `.agents/` as the canonical workflow and skill source of truth.
 5. Treat `.vibe/` as the canonical project context root for docs, examples, genesis, and artifacts.
 6. Treat platform directories such as `.codex/` only as compatibility entrypoints, not the canonical source of truth.
+7. Before accepting a multi-scope route, confirm `.vibe/coord/registry.yaml` exists and `topology: multi`. Otherwise, fall back to the primary single-scope routes above.

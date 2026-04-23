@@ -9,10 +9,11 @@ This is a repository-level implementation note for the generator itself. It is n
 Canonical source files:
 
 - `src/vct/templates/AGENTS.md`
-- `src/vct/templates/.agents/workflows/`
-- `src/vct/templates/.agents/skills/`
+- `src/vct/templates/.agents/workflows/`（24 个 workflow，含 5 个多 scope 协同 workflow：`worker-bootstrap` / `orchestrate` / `reviewer-session` / `coord-status` / `promote-scope`）
+- `src/vct/templates/.agents/skills/`（20 个 skill，含 `scope-orchestration/` 及其 `references/` 下的 7 份 scope 骨架模板）
 - `src/vct/templates/.agents/scripts/`
-- `src/vct/templates/scaffold/.vibe/`
+- `src/vct/templates/scaffold/.vibe/`（含 `coord/` 单 scope 默认 registry）
+- `src/vct/templates/skills/vibecoding-system/SKILL.md`（Codex 路由 skill；多 scope 路由入口也在此声明）
 
 Generated projects now use two shared roots:
 
@@ -98,3 +99,22 @@ The generator also writes:
 - `init` refuses to adopt a foreign root `AGENTS.md` or `.agents/` directory unless `--force` is used
 - if a workspace already has foreign target roots such as `.antigravity/`, `.cursor/`, or `.github/` and there is no managed `.vibe/` root yet, `init` skips those targets instead of adopting them silently
 - an existing root `AGENTS.md` is only reused automatically when the workspace already has a managed `.vibe/` root
+
+## Multi-scope (opt-in)
+
+生成后的项目默认运行在**单 scope 模式**。四角色协同（Worker / Orchestrator / Reviewer / Advisor）只在项目显式激活多 scope 时才生效。**激活完全由用户驱动**——CLI 不会把单 scope 安装自动升级成多 scope。
+
+驱动 opt-in 路径的源文件：
+
+- `src/vct/templates/.agents/workflows/worker-bootstrap.md`
+- `src/vct/templates/.agents/workflows/orchestrate.md`
+- `src/vct/templates/.agents/workflows/reviewer-session.md`
+- `src/vct/templates/.agents/workflows/coord-status.md`
+- `src/vct/templates/.agents/workflows/promote-scope.md`
+- `src/vct/templates/.agents/skills/scope-orchestration/SKILL.md` 及其 `references/`（scope 骨架模板）
+- `src/vct/templates/scaffold/.vibe/coord/registry.yaml`（出厂值 `topology: single` / `scopes: []`）
+- `src/vct/templates/scaffold/.vibe/coord/README.md`
+
+激活动作由生成后的项目自己通过 `/promote-scope <name>` 完成；该 workflow 会把 `.vibe/coord/registry.yaml` 的 `topology: single` 切换为 `topology: multi`，并消费 `.agents/skills/scope-orchestration/references/` 下的模板脚手架出新 scope。CLI 自身不需要任何额外 flag——`vct init` / `vct update` 只是把这些文件作为共享核心的一部分投送下去。
+
+角色自识别协议位于 `src/vct/templates/AGENTS.md` 顶部的 "🪪 角色自识别协议"；Codex 路由 skill（`src/vct/templates/skills/vibecoding-system/SKILL.md`）在一段显式的 opt-in 区块里列出了多 scope 路由。

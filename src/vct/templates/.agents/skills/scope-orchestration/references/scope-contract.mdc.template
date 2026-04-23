@@ -1,0 +1,66 @@
+---
+description: {{SCOPE_NAME}} 是契约仓库；默认只读，变更必须走 /propose-contract 流程
+globs:
+  - {{SCOPE_PATH}}/**
+alwaysApply: false
+---
+
+# Contract Rule: {{SCOPE_NAME}} ({{SCOPE_LABEL}})
+
+`{{SCOPE_PATH}}/` 是全工作区**共同依赖的契约仓库**（如 protobuf / OpenAPI / GraphQL schema 等）。任何 service scope 都必须**只读**引用它。此规则在编辑 `{{SCOPE_PATH}}/**` 下任何文件时自动激活。
+
+## 默认：所有 Worker 只读
+
+除了在 `/propose-contract` 流程中被授权的临时 contract editor，没有 Worker 可以直接修改 `{{SCOPE_PATH}}/`。这是为了：
+
+- 防止破坏所有消费方（多 scope 共依赖）
+- 强制契约变更进入集中评审，避免多 Worker 各自改同名定义引发合并爆炸
+- 保留 breaking-change 检测（如 buf breaking、openapi-diff）作为 CI gate
+
+## 合法的修改入口
+
+### A. 人工协商（始终可用）
+
+1. 用户在 Orchestrator Chat 中明确声明："我要改契约，以下是 diff 草案"
+2. Orchestrator 评估跨 scope 影响（读 [.vibe/coord/dependencies.yaml](../../.vibe/coord/dependencies.yaml)）
+3. 用户开一个**专门的** Chat 执行契约编辑（临时把自己视为 Worker bound to `{{SCOPE_NAME}}`）；该 Chat 只改 `{{SCOPE_PATH}}/`，不碰其他 scope
+4. 变更合并到 `{{SCOPE_NAME}}/main` 后，各消费方 scope 的 Worker 在自己的 scope 内重新生成代码
+
+### B. `/propose-contract` workflow（若已引入）
+
+自动化上述流程：锁定所有 service scope 的契约使用、开临时 PR、跑 breaking 检测、通过后再 unlock。
+
+## 当前 scope 的硬约束
+
+在 `{{SCOPE_PATH}}/` 内：
+
+- ✅ 可写（仅当 Chat 明确声明为 "contract editor" 且用户已授权）：
+  - 契约定义文件（`.proto` / `.openapi.yaml` / `.graphql` 等，按 scope 具体技术栈）
+  - 契约生成配置（`buf.yaml` / `buf.gen.yaml` / 类似等价物）
+  - `third_party/` 或 vendor 依赖更新
+
+- ❌ 绝不：
+  - 来自常规 Worker Chat 的任何写入
+  - 修改 lock 文件以外的构建产物（除非明确操作）
+  - 删除任何已发布的 service / method / operation（破坏性）
+
+## 变更原则（无论谁动）
+
+- **向后兼容**优先：新增字段用可选语义 + 不 reuse 已废字段号；标记 `deprecated` 保留一个版本周期再删
+- **破坏性变更**：必须在 commit message 标注 `BREAKING CHANGE:` 并通知所有消费方
+- 变更后同步更新 [.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md](../../.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md) 与相应 ADR
+
+## 必读
+
+### 强制
+
+- [.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md](../../.vibe/genesis/{{ARCH_VERSION}}/02_ARCHITECTURE_OVERVIEW.md) — 了解各 service 如何使用契约
+- [.vibe/genesis/{{ARCH_VERSION}}/03_ADR/](../../.vibe/genesis/{{ARCH_VERSION}}/03_ADR/) — 与契约相关的决策
+- [.vibe/coord/dependencies.yaml](../../.vibe/coord/dependencies.yaml) — 所有消费方及其 pin
+- `{{SCOPE_PATH}}/` 根部的 `README.md` / `CHANGELOG.md`（若存在）
+
+### 强烈推荐（按需阅读）
+
+- [.vibe/genesis/{{ARCH_VERSION}}/01_PRD.md](../../.vibe/genesis/{{ARCH_VERSION}}/01_PRD.md) — 理解契约背后的业务语义
+- [.vibe/genesis/{{ARCH_VERSION}}/04_SYSTEM_DESIGN/](../../.vibe/genesis/{{ARCH_VERSION}}/04_SYSTEM_DESIGN/) — 各消费方 scope 的 L0 设计
+- [.vibe/artifacts/error_journal.md](../../.vibe/artifacts/error_journal.md) — 与契约兼容性相关的历史经验

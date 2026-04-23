@@ -1,0 +1,41 @@
+# VibeCoding Cross-Scope Dependencies
+#
+# 声明 scope 之间的运行时 / 构建时依赖关系。
+# 读取者：
+#   - Worker bootstrap 时用于理解本 scope 依赖谁
+#   - Orchestrator 派活时用于排序（被依赖者优先完工）
+#   - Reviewer 检查 PR 是否有越界依赖
+# 维护者：Orchestrator
+#
+# 本文件是**可选**的。若项目拓扑简单、无跨 scope 依赖，可以整体删除本文件。
+# 若项目演进出依赖关系，由 Orchestrator 在 /promote-scope 或收尾时填充。
+
+# ─── 示例：一个 BFF 依赖核心服务 + 契约 ───
+# - scope: example-bff
+#   depends_on:
+#     - scope: example-core            # kind: service；运行时 RPC 调用
+#       kind: service
+#       via: runtime-rpc
+#     - scope: example-contract        # kind: contract；构建时代码生成
+#       kind: contract
+#       via: build-codegen
+#       pin: v1.0.3                    # 可选：固定版本 / tag
+#
+# - scope: example-core
+#   depends_on:
+#     - scope: example-contract
+#       kind: contract
+#       via: build-codegen
+#       pin: v1.0.3
+
+# via 字段的推荐取值：
+#   - runtime-rpc        服务间直接调用
+#   - runtime-event      异步事件/队列
+#   - runtime-db         共用数据库/存储
+#   - build-codegen      构建时代码生成
+#   - build-sdk          构建时 SDK 依赖
+#   - test-fixture       测试夹具共享
+#   - docs-only          仅文档引用（不影响构建与运行）
+
+# 实际依赖（由 Orchestrator 维护，删除或替换以下占位）：
+# dependencies: []

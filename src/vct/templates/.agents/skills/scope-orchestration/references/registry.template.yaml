@@ -1,0 +1,43 @@
+# VibeCoding Multi-Scope Registry
+#
+# 此文件登记本工作区所有受控 scope。它是 .vibe/coord/ 目录的唯一静态真相源。
+# 运行时状态（谁在干活、哪条任务进行中）一律通过 git 分支 / PR / 各 scope 05_TASKS.md
+# 的 checkbox 获得，不在此处或其他地方记账。
+#
+# 维护者：只有 Orchestrator 角色通过 /promote-scope / /demote-scope 修改本文件。
+# 读取者：所有角色在 bootstrap 时读取，校验 scope 合法性。
+#
+# ─── 激活状态 ───
+# topology: single  → 默认单 scope，Worker/Orchestrator 分工不启用；用普通 workflow 即可
+# topology: multi   → 已启用多 scope 协同；Worker/Orchestrator/Reviewer workflow 生效
+#
+# 从 single 切换到 multi 只需运行 /promote-scope <name>；无需手工改 topology 字段。
+
+topology: single
+
+scopes: []
+
+# ─── 示例（当通过 /promote-scope 激活 multi 模式后，scopes: 会被填入，类似）───
+#
+# topology: multi
+#
+# scopes:
+#   - name: example-core
+#     path: ./example-core
+#     kind: service
+#     status: active                # active | paused | archived
+#     notes: "核心服务；真相源在 example-core/.vibe/05_TASKS.md"
+#
+#   - name: example-bff
+#     path: ./example-bff
+#     kind: service
+#     status: active
+#     notes: "面向客户端的 BFF 网关"
+#
+#   - name: example-contract
+#     path: ./example-contract
+#     kind: contract
+#     status: active
+#     notes: "protobuf / openapi 契约，所有 service 只读依赖"
+#
+# kind 合法取值：service | contract | frontend | backend | library | app
